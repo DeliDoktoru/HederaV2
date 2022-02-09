@@ -1,0 +1,106 @@
+doctype html
+html
+  head
+    include head.pug
+  body
+    #shadow-mask
+    #loader
+    header
+      .container
+        if notify!=undefined
+          .cbkutu(data-id=data.id)
+            input(id="cb"+data.id  type='checkbox' name='cb' checked= notify ? true : false)
+            label(for='cb'+data.id)
+        h2=title
+        #top
+          section
+            a.btn(href='/index/1')
+              i.fas.fa-home
+              | AnaSayfa
+            a.btn(href='/game/table')
+              i.fas.fa-gamepad
+              | Oyunlar
+            a.btn(href='/system/table')
+              i.fas.fa-history
+              | Sistem Takip Listesi
+            a.btn(href='/company/table')
+              i.fas.fa-users-cog
+              | Yayıncılar
+            a.btn(href='/notification/table')
+              i.fas.fa-bell
+              | Bildirimler
+            a.btn(href='/notification_request/1')
+              i.fas.fa-bell
+              | Bildirim listesi (Oyunlar)
+            a.btn(href='/notification_request/2')
+              i.fas.fa-bell
+              | Bildirim listesi (Yayıncılar)
+            a.btn(href='/random')
+              i.fas.fa-random
+              | Rastgele iki oyun
+            a.btn(href='/manual')
+              i.fas.fa-satellite-dish
+              | Elle Ekleme
+            a.btn(href='/manual/table/1')
+              i.fas.fa-check-double
+              | Elle Eklenen Oyunlar
+            a.btn(href='/prototype/form')
+              i.fas.fa-plus-circle
+              | Prototip Oluştur
+            a.btn(href='/prototype/table')
+              i.fas.fa-plus-circle
+              | Prototipleri Listele
+            a.btn(href='/group/table')
+              i.fas.fa-user-friends
+              | Grup
+            a.btn(href='/user/table/1')
+              i.fas.fa-users
+              | Kullanıcılar
+            a.btn(href='/user_tag/table')
+              i.fas.fa-tags
+              | Etiketlerim
+            a.btn(href='/log')
+              i.fas.fa-boxes
+              | Log
+            a.btn(href='/exit')
+              i.fas.fa-door-open
+              | Çıkış
+            //a.btn(href='/tag/table')
+              i.fas.fa-tags
+              | Etiketler
+          if categorys
+              .s#user-categorys(data-id=data && data.id) 
+                .dropdown
+                  .dropbtn
+                    i.fas.fa-plus-circle 
+                  .dropdown-content
+                    each item in usercategorys
+                      a(href='#' data-id=item.id)=item.text
+              .categorys
+                h4 Etiketler
+                each item in categorys
+                    a(href='/tag/table')
+                      code.highlighter-rouge=item
+                each item in userselectedcategorys
+                  .custom-category      
+                    a(href='/user_tag/table')
+                      code.highlighter-rouge=item.text
+                    .r(data-id=item.id) 
+                      i.fas.fa-trash-alt    
+                    
+        .note
+          #note(data-id=data && data.id)=note
+          i.fas.fa-edit
+          i.fas.fa-paper-plane
+          i.fas.fa-trash-alt
+          i.fas.fa-ban
+        .clear
+    block content
+    script.
+      message="!{ (  message ) }"
+      if( message ){
+         showNotification('top','right',"danger",message);
+      }
+      if(window.location !== window.parent.location){
+        document.getElementById("top").remove()
+      }

@@ -1,0 +1,16 @@
+doctype html
+html
+  head
+    include head.pug
+  body
+    header
+      .container
+        section
+          a.btn(href='/')
+            i.fas.fa-home
+            | AnaSayfa
+          a.btn(href='javascript:void(0)' onclick="location.reload()")
+            i.fas.fa-redo
+            | Tekrar
+    each item in ids
+        iframe(src='/game/'+item.id)

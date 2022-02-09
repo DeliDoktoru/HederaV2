@@ -1,0 +1,96 @@
+.top{
+    height: 80px;
+    background-color: #252d3d;;
+    box-shadow: 0px 4px 29px -3px black;
+    margin-left: 12px;
+    margin-right: 12px;
+    border-radius: 4px;
+    border: 2px solid #c4c6ca;
+}
+.header{
+    height: 40px;
+    width: 100%;
+}
+.top h1{
+    margin-left: 2%;
+    color: blanchedalmond;
+}
+body{
+ border-top: 2px;
+ border-left: 2px;
+ border-right: 2px;
+ border-color: #58355E;
+ margin:0;
+ background-color: #455064;
+
+
+}
+.list li:nth-child(odd){
+    background-color: #455064;
+}
+.list li:nth-child(even){
+    background-color: #252d3d;
+}
+.list li{
+    width: 100%;
+    list-style-type: none;
+    padding-top: 5%;
+    padding-bottom: 5%;
+}
+.node{
+    width: 90%;
+    margin: auto;
+    min-height: 100px;
+    border: 1px solid #c4c6ca;
+    
+}
+.node h2{
+    float: left;
+    margin-top: -15px;
+    margin-left: 8px;
+}
+.list li:nth-child(odd) .node h2{
+    background-color: #455064;
+}
+.list li:nth-child(even) .node h2{
+    background-color: #252d3d;
+}
+.container{
+    float: left;
+    margin-top: -20px;
+    margin-left: 15px;
+}
+.list{
+    padding: 0px;
+    margin: 0px;
+    box-shadow: 0px 6px 5px 0px black;
+    border: 2px solid #c4c6ca;
+}
+.rigth{
+    width: 35%;
+    background-color: #cebebe;
+    float: right;
+    margin-right: 5%;
+    margin-top: -40px;
+}
+.left{
+    box-shadow: 0px 4px 29px -3px black;
+    border: 1px solid #c4c6ca;
+    width: 40%;
+    height: 400px;
+    float: left;
+    background-color: #252d3d;
+    margin-top: 30px;
+    margin-left: 10%;
+}
+.splide{
+    height: 100%;
+}
+.slide-image{
+    width: 98%;
+    margin: 1%;
+    height: 390px;
+}
+.splide__slide{
+    margin: auto;
+}

@@ -1,0 +1,202 @@
+doctype html
+html
+  head
+    meta(http-equiv='Content-Type' content='text/html;charset=UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+    meta(name='subtitle' content=title)
+    meta(name='title' content=title)
+    link(rel='stylesheet' href='./stylesheets/cedrus.css')
+    script(src='./javascripts/jquery.min.js')
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/css/splide.min.css')
+    script(src='https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/js/splide.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js')
+    link(href='https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap' rel='stylesheet')
+    title=title 
+    link(rel='icon' href='./src/favicon.ico' type='image/x-icon')
+  body
+    img.pdf(src='./images/pdf.png')
+    .top.s.renk1
+      h1#name
+    #mantrah
+      .s.p.renk1
+        h2 MANTRA
+        .f.mantra
+    .left
+      .s.p.renk1
+        h2 Mantra
+        .f.mantra
+      h2.mt5 Design
+    .rigth.s.renk1
+      .p
+        .dont-breake
+          h2 Core Loop
+          #loop.f.fb
+        h2.mt5 Dynamics
+        .f.fb
+          .dont-breake  
+            h2.ml0.mb1 Gengre
+            #genre
+          .dont-breake
+            h2.ml0.mb1 Progress
+            #progress
+          .dont-breake
+            h2.ml0.mb1 Goals
+            #goals
+          .dont-breake
+            h2.ml0.mb1 Challenges
+            #chalanges
+        h2.mt5 Mechanics
+        #mechanics.f.fb
+    #d1.dummy
+    #imgsh
+      .rigth.renk1
+        .p.f
+          h2.mt5 DESIGN
+    #d2.dummy  
+    script.
+      String.prototype.replaceAll = function (search, replacement) {
+      var target = this;
+      return target.replace(new RegExp(search, 'g'), replacement);
+      };
+      data=!{data}
+      gameName=data.name
+      mantra = data.mantra
+      not=""
+      links =[]
+      linksTxt= []
+      loop = data.loop
+      genre = data.genre
+      progress = data.progress
+      goals =data.goals
+      chalanges = data.chalanges
+      mechanics = data.mechanics
+      img=[]
+      $(function () {
+      $(".mantra").html(mantra)
+      $("#loop").html(loop.replaceAll("\\n", "<br/>"))
+      $("#genre").html( genre.replaceAll("\\n", "<br/>"))
+      $("#progress").html(  progress.replaceAll("\\n", "<br/>"))
+      $("#goals").html( goals.replaceAll("\\n", "<br/>"))
+      $("#chalanges").html( chalanges.replaceAll("\\n", "<br/>"))
+      $("#mechanics").html(mechanics.replaceAll("\\n", "<br/>"))
+      $("#links").append(not.replaceAll("\\n", "<br/>") +"<br/>" )
+      $("#name").text(gameName)
+      $("title").text(gameName)
+      for(i=0;i<data.splide.length;i++){
+          li=""
+          for(j=0;j<data.splide[i].length;j++ ){
+              if(data.splide[i][j].type=="yns"){
+                yns=""
+                t1=false,t2=false
+                imgg=""
+                if(data.splide[i][j].link!="/images/dummy.jpg"){
+                    yns+=`<div class="yns">
+                            <img class="slide-image" src="${data.splide[i][j].link}">
+                        </div>`
+                    imgg = `<div class="yns"><img class="slide-image" src="${data.splide[i][j].link}"></div>`
+                    t1=true
+                    $("#imgsh>div").eq(0).append(imgg)
+                } 
+                imgg=""
+                if(data.splide[i][j+1].link!="/images/dummy.jpg"){
+                    yns+=`<div class="yns">
+                            <img class="slide-image" src="${data.splide[i][j+1].link}">
+                        </div>`
+                     imgg = `<div class="yns"><img class="slide-image" src="${data.splide[i][j+1].link}"></div>`
+                      $("#imgsh>div").eq(0).append(imgg)   
+                    t2=true    
+                } 
+                if(t1 || t2){
+                    li+=`
+                    <li class="splide__slide">
+                        ${yns}                        
+                    </li>
+                    `
+                }
+                j++;
+              }
+              else if(data.splide[i][j].type=="yns2"){
+                  li+=`<li class="splide__slide"><div class="yns2">
+            <iframe width="100%" height="100%" src="${data.splide[i][j].link}"></iframe>
+            </div></li>`
+              }
+             
+          }
+          lnk=""
+          $("#imgsh>div").append( '<div class="clear text-left"><div class="fb f">'+data.notes[i].note+'<br/>' + data.notes[i].links.map((x,i)=> `<a href='${x.link}' target='_blank'>${ x.textlink ? x.textlink :  x.link }:</a>${x.link}<br/>`).join("") +' </div></div>');
+        
+          for(n=0;n<data.notes[i].links.length;n++){
+            lnk+=`<a href="${data.notes[i].links[n].link}" target="_blank">${data.notes[i].links[n].textlink}</a><br>`
+      
+          }
+          $(".left").append(`
+                <div class="s mt2 renk1">
+                    <div class="splide splide${i+1}">
+                        <div class="splide__track">
+                            <ul class="splide__list" id="imgs">
+                                ${li}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="f fb" id="links">
+                    ${data.notes[i].note}<br>
+                    ${lnk}
+                </div>
+            `)
+      }
+      
+      for(k=0;k<$(".splide").length;k++){
+          new Splide('.splide'+(k+1)).mount();
+      }
+      
+      $(".pdf").click(function () {
+        let tmps=[$(".rigth").css("width"),
+        $(".left").css("display"),
+        $(".rigth").css("height"),
+        $("#imgsh").css("display"),
+        $("#mantrah").css("display"),
+        $("body").css("width"),
+        $("#d1").css("height"),
+        $("#d2").css("height")
+        ]
+        $(".rigth").css("width", "100%");
+        $(".left").css("display", "none")
+        $(".rigth").css("height", "auto")
+        $("#imgsh").css("display", "block")
+        $("#mantrah").css("display", "block")
+        $("body").css("width", "100%")
+        $(".pdf").hide();
+        var ot = document.getElementById("d1").offsetTop
+        if (ot < 1450) {
+        $("#d1").css("height", (1450 - ot) + "px")
+        }
+        var ot2 = document.getElementById("d2").offsetTop
+        if (ot2 < 2840) {
+        $("#d2").css("height", (2840 - ot2) + "px")
+        }
+        window.print();
+        function refresh(tmps){
+          $(".rigth").css("width",tmps[0])
+          $(".left").css("display",tmps[1])
+          $(".rigth").css("height",tmps[2])
+          $("#imgsh").css("display",tmps[3])
+          $("#mantrah").css("display",tmps[4])
+          $("body").css("width",tmps[5])
+          $(".pdf").show()
+          $("#d1").css("height",tmps[6])
+          $("#d2").css("height",tmps[7])
+        }
+        var agent=navigator.userAgent.toLowerCase();
+        if(agent.indexOf("mobile")!=-1   ) {
+          setTimeout(function(){
+            refresh(tmps)
+          },2500)
+        }
+        else{
+          refresh(tmps)
+        }
+       
+
+      })
+      });

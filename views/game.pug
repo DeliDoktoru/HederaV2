@@ -1,0 +1,200 @@
+extends layout
+
+block content
+  link(rel='stylesheet' href='/stylesheets/splidejs.css' type="text/css")
+  script(src='https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/js/splide.min.js'  type='text/javascript')
+  .row
+    .col-md-12
+      .splide(style='display:none;')
+        .splide__track
+          ul.splide__list
+            if images
+              each item in images
+                li.splide__slide
+                  img.slide-image(src=`/games/${item.gameId}/${item.text}`  )
+      .box
+        if images        
+          each item,index in images
+            img.image(src=`/games/${item.gameId}/${item.text}` index=index  )
+    .col-md-6 
+      h1 Yayıncı
+      p
+        if data
+          a(href='/company/'+data.companyId)=data.dn
+      h2 Tarih
+      if data
+        - tmp = data.rdd.substring(0,10).split("-")
+        p=tmp[2]+"-"+tmp[1]+"-"+tmp[0]
+        h2 Bundle
+        p=data.bundle_id
+        h2 Store Link
+        p
+          a(href=data.app_store_url target="_blank")=data.app_store_url
+    .col-md-6 
+      .card
+        .card-body
+          #comments-section
+            #comments
+              h3 Yorumlar
+              each item in comments
+                .comment
+                  -let tmp = item.date.substring(0,10).split("-")
+                  -let tmp2 =item.date.split("T")[1].split(":")
+                  .u=item.username
+                  span=item.text
+                  .d=tmp[2]+"-"+tmp[1]+"-"+tmp[0] +" "+tmp2[0]+":"+tmp2[1]
+                  if userId==item.userId
+                    .cid(data-id=item.id)
+                    .s(style="display: none;") 
+                      i.fas.fa-share
+                    .c(style="display: none;")
+                      i.fas.fa-ban
+                    .e
+                      i.fas.fa-edit
+                    .r 
+                      i.fas.fa-trash-alt
+            #comment-input 
+              .row
+                .col-md-8
+                  .form-group
+                    input#comment.form-control(type='text' placeholder='Yorumunuz..')
+                .col-md-2
+                  button.btn.btn-info.btn-sm(onclick='sendComment()') Gönder
+    .col-sm-12
+          h3 Açıklama
+          pre.highlight
+            if data
+              code=data.description
+    if versions
+      .col-md-12
+        .card.card-timeline.card-plain
+          .card-body
+            ul.timeline.timeline-simple
+              each item in versions
+                -  tmp = item.version_date.split("-")
+                li.timeline-inverted
+                  .timeline-badge.info
+                    i.nc-icon.nc-world-2
+                  .timeline-panel
+                    .timeline-heading
+                      span.badge.badge-pill.badge-info=item.version_name
+                    .timeline-body
+                      p=item.version_text
+                    h6
+                      i.ti-time=tmp[2]+"-"+tmp[1]+"-"+tmp[0]
+        
+  script.
+    var splide = new Splide( '.splide' ,{
+        type  : 'fade',
+        rewind: true,
+        autoWidth:true,
+      }).mount();
+    var tmpComment=""  
+    function sendComment(){
+      Dynajax('comment','n',basariliReload,null,false,{ method:"create",text:$("#comment").val(), gameId:!{ (data.id || 'null') }  });
+    }
+    $(function() {
+      $(".user-categorys a").click(function(){
+        Dynajax('user_game_tag','n',basariliReload,null,false,{ method:"create",gameId:$(".user-categorys").attr("data-id"), userCategoryId:$(this).attr("data-id")  });
+      })
+      $(".custom-category .r").click(function(){
+        event.stopPropagation();
+        Dynajax('user_game_tag','n',basariliReload,null,false,{ method:"delete",gameId:$(".user-categorys").attr("data-id"), userCategoryId:$(this).attr("data-id")  });
+        event.cancelBubble=true
+      })
+      /*$("#comment-input>.send").click(function(){
+        
+      })*/
+      $(".comment>.e").click(function(){
+        p=$(this).parent(),s=$(p).find("span")
+        tmpComment=$(s).text()
+        $(s).remove()
+        $(p).prepend( "<textarea>" );
+        $(p).find("textarea").val(tmpComment)
+        $(this).hide()
+        $(p).find(".c,.s").show()
+      })
+       $(".comment>.r").click(function(){
+           Dynajax('comment','n',basariliReload,null,false,{ method:"delete",id:$(this).parent().find(".cid").attr("data-id")  });
+      })
+      $(".comment>.s").click(function(){
+           Dynajax('comment','n',basariliReload,null,false,{ method:"update",id:$(this).parent().find(".cid").attr("data-id") , text:$(this).parent().find("textarea").val()  });
+      })
+      $(".comment>.c").click(function(){
+          p=$(this).parent(),s=$(p).find("span")
+          $(p).find(".c,.s").hide()
+          $(p).find(".e").show()
+          $(p).find("textarea").remove()
+          $(p).prepend( "<span/>" );
+          $(p).find("span").text(tmpComment)
+
+      })
+      $(".box>.image").click(function(){
+        splide.go( $(this).attr("index") ); 
+        //$("#shadow-mask").css("display", "block"); kaldır
+        $(".splide").css("display", "block");
+        
+      })
+      $(".slide-image").click(function(){
+        if($(this).is(":visible")){
+          splide.go( '+1' ); 
+          event.cancelBubble=true
+        }
+        
+      })
+
+       $(".slide-image").mousemove(function(e) {
+          $("ul.splide__list").css("transform", "");
+      });
+      
+      $(document).mousemove(function(e) {
+          $("ul.splide__list").css("transform", "");
+      });
+
+      
+      $(".splide").click(function(){
+        $("#shadow-mask").css("display", "none");
+        $(".splide").css("display", "none");
+      })
+      $(".splide__arrows").click(function(){
+        event.cancelBubble=true
+      })
+    })
+    var note;
+    $(function() {
+      $( "input[type='checkbox']" ).click(function() {
+          event.stopPropagation();
+      });
+      $( ".cbkutu" ).click(function() {
+          event.stopPropagation();
+          var tmpStatus=$(this).find("input[type='checkbox']").prop('checked')
+          Dynajax('setNotify','l',setChecked,{t:this,rc:tmpStatus},false,{ status:tmpStatus,typeId:[2],targetId:parseInt($(this).attr("data-id"))});
+          event.cancelBubble=true
+      });
+      $(".note").show()
+      if ($("#note").text() =="" ){
+        $(".note .fa-trash-alt").toggle()
+      }
+      $(".note .fa-paper-plane").toggle()
+      $(".note .fa-ban").toggle()
+      $(".note .fa-edit").click(function(){
+        note=$("#note").text()
+        $("#note").html('<div class="form-group"> <input value="'+note+'" type="text" class="form-control" placeholder="Notunuz.."> </div>  ')
+        $(".note .fa-edit,.fa-trash-alt").hide()
+        $(".note .fa-paper-plane,.fa-ban").show()
+      })
+      $(".note .fa-trash-alt").click(function(){
+          Dynajax('note','n',basariliReload,null,false,{ status:0,targetType:1,targetId:parseInt($("#note").attr("data-id"))});
+        })
+       $(".note .fa-ban").click(function(){
+          $("#note").html(note)
+           $(".note .fa-edit,.fa-trash-alt").show()
+        $(".note .fa-paper-plane,.fa-ban").hide()
+        if ($("#note").text() =="" ){
+        $(".note .fa-trash-alt").toggle()
+      }
+        }) 
+         $(".note .fa-paper-plane").click(function(){
+           Dynajax('note','n',basariliReload,null,true,{ text:$("#note input").val(),status:1,targetType:1,targetId:parseInt($("#note").attr("data-id"))});
+        })
+    });

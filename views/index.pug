@@ -1,0 +1,41 @@
+extends layout
+
+block content
+  .container
+    h1 Son Çıkan Oyunlar
+    table
+      tbody
+        tr
+          th 
+          th Oyun Adı
+          th Yayıncı
+          th Tarih
+        each item in data.tableBody   
+            tr.tdata(onclick="location.href='/game/"+item.id+"'"  onauxclick="window.open('/game/"+item.id+"', '_blank');" )
+              td.center
+                img(src=`/games/${item.id}/0.jpg`  ) 
+              td=item.n
+              td=item.dn
+              - let tmp = item.rdd.substring(0,10).split("-")
+              td=tmp[2]+"-"+tmp[1]+"-"+tmp[0]
+  if data.tableBody.length!=0
+    .pager
+      if data.current!=1
+        .pageButton
+          a(href= '/index/'+parseInt(data.current-1)  ) &laquo;
+      - var i = 3,j=1;  
+      while i>0
+        if data.current-i > 0
+          .pageButton
+            a(href='/index/'+(parseInt(data.current)-i))=data.current-i
+        - i--
+      .pageButton
+        a.active(href='javascript:void(0)' )=data.current
+      while j<4
+        if data.current+j <= data.max
+          .pageButton
+            a(href= '/index/'+ (parseInt(data.current)+j))=data.current+j
+        - j++    
+      if data.current<data.max
+        .pageButton
+          a(href='/index/'+(parseInt(data.current)+1)) &raquo;        

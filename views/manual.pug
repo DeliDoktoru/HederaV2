@@ -1,0 +1,64 @@
+extends layout
+
+block content
+  .card 
+    .card-header
+      h3 App store linki giriniz:
+    .card-body
+      .row
+        .col-md-6
+          .form-group
+            input#url.form-control(type='text')
+        .col-md-6
+          button.btn.btn-sm(onclick='sendAppLink()') Ekle
+  .dummy        
+  script. 
+    function sendAppLink(){
+        Dynajax('manual','s',function(result){
+          showNotification('top','right',"success",result.message);
+          if(result.d){
+            var item=result.d[0]
+            var notify=result.notify
+            $(".dummy").prepend(`
+              <div class="card"> 
+                <div class="card-header">
+                  <h4>${result.message}</h4>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <a href="/company/${item.id}" target="_blank">${item.text}</a>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      ${ item.hidden==1 ? '<button class="btn btn-sm" onclick="aktiveEt('+item.id+',this)">Aktifleştir!</button>' : ''}
+                      ${ item.checker==0 ? '<button class="btn btn-sm" onclick="checker('+item.id+',this)">Yayıncı takibine ekle!</button>' : ''}
+                      ${ ! notify.length>0 ? '<button class="btn btn-sm" onclick="notify('+item.id+',this)">Bildirim al!</button>' : ''}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `)
+          }
+        },null,false,{ targetUrl: $("#url").val() });
+        $("#url").val("")
+    }
+    function aktiveEt(id,_this){
+      Dynajax('hidden','l',function(result,t){
+        showNotification('top','right',"success",result.message);
+        $(t).remove()
+      },_this,false,{ targetId:parseInt(id)});
+    }
+    function notify(id,_this){
+          Dynajax('setNotify','l',function(result,t){
+        showNotification('top','right',"success",result.message);
+        $(t).remove()
+      },_this,false,{ status:false,typeId:[1, 3],targetId:parseInt(id)});
+    }
+    function checker(id,_this){
+            Dynajax('checker','l',function(result,t){
+        showNotification('top','right',"success",result.message);
+        $(t).remove()
+      },_this,false,{ status:false,targetId:parseInt(id)});
+    }

@@ -1,0 +1,53 @@
+extends layout
+
+block content
+  script(src='https://ditib.intersanyazilim.com//Blocks/Header/HeadJS')
+  script(src='/javascripts/pq.js')
+  link(href='/stylesheets/pq.css', rel='stylesheet')
+  .row
+    if data.search 
+      .col-md-8 
+      .col-md-4 
+        .input-group.no-border#search-box
+          input.form-control(type='text' value='' placeholder='Arama...')
+          .input-group-append
+            .input-group-text
+              i.nc-icon.nc-zoom-split
+    .col-md-12
+      .card
+        .card-body
+          #table(style="height:500px")
+  script. 
+    $(function(){
+      var dataModel = {
+            location: "remote",
+            cache: false,
+            method: "POST",
+            url: "/ajax/test",
+            getData: function (dataJSON) {
+                return {
+                    data: dataJSON
+                };
+            }
+      };
+      var colModel = !{data.colModel}
+
+      var obj = {
+            editable: false,
+            resizable: true,
+            height: '100%',
+            roundCorners: false,
+            stripeRows: false,
+            colModel: colModel,
+            dataModel:dataModel,
+            showTitle: false,
+            wrap: false,
+            menuIcon :false,
+            hwrap: false,
+            scrollModel: { autoFit: true }
+            
+        };
+
+      $("#table").pqGrid(obj);  
+    })
+    

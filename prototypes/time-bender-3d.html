@@ -1,0 +1,195 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="subtitle" content="Time Bender 3D">
+    <meta name="title" content="Time Bender 3D">
+    <link rel="stylesheet" href="./stylesheets/cedrus.css">
+    <script src="./javascripts/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/css/splide.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/js/splide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&amp;display=swap" rel="stylesheet">
+    <meta name="title" content="Time Bender 3D">
+    <meta name="description" content="Time Bender 3D">
+    <link rel="image_src" href="http://cedrusgames.com/src/logo.png" />
+    <title>Time Bender 3D</title>
+    <link rel="icon" href="http://cedrusgames.com/src/logo.png" type="image/x-icon">
+  </head>
+  <body><img class="pdf" src="./images/pdf.png">
+    <div class="top s renk1">
+      <h1 id="name"></h1>
+    </div>
+    <div id="mantrah">
+      <div class="s p renk1">
+        <h2>MANTRA</h2>
+        <div class="f mantra"></div>
+      </div>
+    </div>
+    <div class="left">
+      <div class="s p renk1">
+        <h2>Mantra</h2>
+        <div class="f mantra"></div>
+      </div>
+      <h2 class="mt5">Design</h2>
+    </div>
+    <div class="rigth s renk1">
+      <div class="p">
+        <div class="dont-breake">
+          <h2>Core Loop</h2>
+          <div class="f fb" id="loop"></div>
+        </div>
+        <h2 class="mt5">Dynamics</h2>
+        <div class="f fb">
+          <div class="dont-breake"> 
+            <h2 class="ml0 mb1">Gengre</h2>
+            <div id="genre"></div>
+          </div>
+          <div class="dont-breake">
+            <h2 class="ml0 mb1">Progress</h2>
+            <div id="progress"></div>
+          </div>
+          <div class="dont-breake">
+            <h2 class="ml0 mb1">Goals</h2>
+            <div id="goals"></div>
+          </div>
+          <div class="dont-breake">
+            <h2 class="ml0 mb1">Challenges</h2>
+            <div id="chalanges"></div>
+          </div>
+        </div>
+        <h2 class="mt5">Mechanics</h2>
+        <div class="f fb" id="mechanics"></div>
+      </div>
+    </div>
+    <div class="dummy" id="d1"></div>
+    <div id="imgsh">
+      <div class="rigth renk1">
+        <div class="p f">
+          <h2 class="mt5">DESIGN</h2>
+        </div>
+      </div>
+    </div>
+    <div class="dummy" id="d2"> </div>
+    <script>
+      String.prototype.replaceAll = function (search, replacement) {
+      var target = this;
+      return target.replace(new RegExp(search, 'g'), replacement);
+      };
+      data={"id":"51","name":"Time Bender 3D","mantra":"Zamani ileri geri sararak cevre objelerin hareketlerine mudahele ederek finish cizgisine ulasiyoruz.","mechanics":"• Karakter spline uzerinde sabit hizla hareket edecek.\n• swipe up-down ile zamani ileri veya geriye alarak cevre objeleri hareket ettirecegiz.\n•Engeller ile carpisirsak oyun kaybedilir (Oyun ici tekrar bakilacak.)(Topladigi zaman azalabilir)\n•Zaman Saati toplanarak yan tarafta bulunan slider artacak veya azalacak.","chalanges":" •Engeller.","goals":"•1x,2x,3x...10x sabit yolda ilerlerken sagdan soldan gelen buyuk engellerden sliderimizda kalan zamani kullanarak kacmaya calisiriz .","progress":"•Bolumler ilerdikce yeni engel cesitleri ve zorluklari artar.\n•Toplanabilir kum saatleri veya saat ile zaman sliderini doldurur.\n","genre":"HyperCasual Tap Timing","loop":" Oyun Gidisati;\n•Oyun baslar.\n•Karakterimiz surekli spline uzerinde forwardina dogru gider.\n•Yolumuzun uzerinde genel sokak cevre modelleri , araba , cam parcalari , gulle vb.\n•Zamani ileri geri alarak engelleri hareket ettirip engellere carpmadan finish cizgine ulasiriz.\n•Oyun biter.","splide":[[{"type":"yns2","link":"https://www.youtube.com/embed/wxOvvljWR7U"},{"type":"yns","link":"/images/dummy.jpg"},{"type":"yns","link":"/images/dummy.jpg"}]],"notes":[{"note":"https://www.youtube.com/watch?v=wxOvvljWR7U&ab_channel=piouyou     ORNEK OYUN","links":[{"link":"https://www.youtube.com/watch?v=wxOvvljWR7U&ab_channel=piouyou","textlink":"Ornek Oyun"}]}]}
+      gameName=data.name
+      mantra = data.mantra
+      not=""
+      links =[]
+      linksTxt= []
+      loop = data.loop
+      genre = data.genre
+      progress = data.progress
+      goals =data.goals
+      chalanges = data.chalanges
+      mechanics = data.mechanics
+      img=[]
+      $(function () {
+      $(".mantra").html(mantra)
+      $("#loop").html(loop.replaceAll("\\n", "<br/>"))
+      $("#genre").html( genre.replaceAll("\\n", "<br/>"))
+      $("#progress").html(  progress.replaceAll("\\n", "<br/>"))
+      $("#goals").html( goals.replaceAll("\\n", "<br/>"))
+      $("#chalanges").html( chalanges.replaceAll("\\n", "<br/>"))
+      $("#mechanics").html(mechanics.replaceAll("\\n", "<br/>"))
+      $("#links").append(not.replaceAll("\\n", "<br/>") +"<br/>" )
+      $("#name").text(gameName)
+      $("title").text(gameName)
+      for(i=0;i<data.splide.length;i++){
+          li=""
+          for(j=0;j<data.splide[i].length;j++ ){
+              if(data.splide[i][j].type=="yns"){
+                yns=""
+                t1=false,t2=false
+                imgg=""
+                if(data.splide[i][j].link!="/images/dummy.jpg"){
+                    yns+=`<div class="yns">
+                            <img class="slide-image" src="${data.splide[i][j].link}">
+                        </div>`
+                    imgg = `<div class="yns"><img class="slide-image" src="${data.splide[i][j].link}"></div>`
+                    t1=true
+                    $("#imgsh>div").eq(0).append(imgg)
+                } 
+                imgg=""
+                if(data.splide[i][j+1].link!="/images/dummy.jpg"){
+                    yns+=`<div class="yns">
+                            <img class="slide-image" src="${data.splide[i][j+1].link}">
+                        </div>`
+                     imgg = `<div class="yns"><img class="slide-image" src="${data.splide[i][j+1].link}"></div>`
+                      $("#imgsh>div").eq(0).append(imgg)   
+                    t2=true    
+                } 
+                if(t1 || t2){
+                    li+=`
+                    <li class="splide__slide">
+                        ${yns}                        
+                    </li>
+                    `
+                }
+                j++;
+              }
+              else if(data.splide[i][j].type=="yns2"){
+                  li+=`<li class="splide__slide"><div class="yns2">
+            <iframe width="100%" height="100%" src="${data.splide[i][j].link}"></iframe>
+            </div></li>`
+              }
+             
+          }
+          lnk=""
+          $("#imgsh>div").append( '<div class="clear text-left"><div class="fb f">'+data.notes[i].note+'<br/>' + data.notes[i].links.map((x,i)=> `<a href='${x.link}' target='_blank'>${ x.textlink ? x.textlink :  x.link }:</a>${x.link}<br/>`).join("") +' </div></div>');
+        
+          for(n=0;n<data.notes[i].links.length;n++){
+            lnk+=`<a href="${data.notes[i].links[n].link}" target="_blank">${data.notes[i].links[n].textlink}</a><br>`
+      
+          }
+          $(".left").append(`
+                <div class="s mt2 renk1">
+                    <div class="splide splide${i+1}">
+                        <div class="splide__track">
+                            <ul class="splide__list" id="imgs">
+                                ${li}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="f fb" id="links">
+                    ${data.notes[i].note}<br>
+                    ${lnk}
+                </div>
+            `)
+      }
+      
+      for(k=0;k<$(".splide").length;k++){
+          new Splide('.splide'+(k+1)).mount();
+      }
+      
+      $(".pdf").click(function () {
+      $(".rigth").css("width", "100%");
+      $(".left").css("display", "none")
+      $(".rigth").css("height", "auto")
+      $("#imgsh").css("display", "block")
+      $("#mantrah").css("display", "block")
+      $("body").css("width", "100%")
+      $(".pdf").hide();
+      var ot = document.getElementById("d1").offsetTop
+      if (ot < 1450) {
+      $("#d1").css("height", (1450 - ot) + "px")
+      }
+      var ot2 = document.getElementById("d2").offsetTop
+      if (ot2 < 2840) {
+      $("#d2").css("height", (2840 - ot2) + "px")
+      }
+      window.print();
+      location.reload()
+      })
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,111 @@
+extends layout
+
+block content
+  .container-table
+    if data.search 
+      #search-box
+        input
+        i.fas.fa-search
+    table      
+      tbody
+        tr
+          each key,i in data.tableHead
+            if key=="id" && data.pp 
+              th
+            else if key=="id"
+              th #
+            else 
+              th=data.turkce[i]
+          if data.customNotifyText
+            th.text-center=data.customNotifyText    
+          else if data.checkbox    
+            th.text-center Bildirim
+          if data.skip    
+            th.text-center Takip kaldırma
+        if data.tableBody.length==0
+          tr
+            td 
+            td Tabloda veri yok.
+        else     
+          each item in data.tableBody
+              tr(onclick=(data.link==undefined?"":"location.href='"+data.link+item.id+"'") onauxclick=(data.link==undefined?"":"window.open('"+data.link+item.id+"', '_blank');") class=(data.link==undefined?"":"tdata")   )
+                each key,index in data.tableHead
+                  if index==data.dateIndex-1
+                    - let tmp = item[key].substring(0,10).split("-")
+                    td=tmp[2]+"-"+tmp[1]+"-"+tmp[0]    
+                  else if data.html
+                    td!=item[key]
+                  else if data.pp && index==0 && data.link
+                    td.center
+                      img(src=`/games/${item.id}/0.jpg`  ) 
+                  else  
+                    td=item[key]
+                if data.checkbox || data.customNotifyText  
+                  td.notify.center(data-id=item.id ) 
+                    input(id="cb"+item.id  type='checkbox' name='cb' checked= item.notify && item.notify==1 ? true : false)
+                    label(for='cb'+item.id)
+                if data.skip    
+                  td.skip.center( data-id=item.id ) 
+                    i.fas.fa-ban
+  if data.tableBody.length!=0
+    .pager
+      if data.current!=1
+        .pageButton
+          a(href= ( data.pageLink!=null ? data.pageLink : data.link ) + (data.table!=null ? data.table : "table/" )+parseInt(data.current-1)  ) &laquo;
+      - var i = 3,j=1;  
+      while i>0
+        if data.current-i > 0
+          .pageButton
+            a(href=( data.pageLink!=null ? data.pageLink : data.link ) + (data.table!=null ? data.table : "table/" )+(parseInt(data.current)-i))=data.current-i
+        - i--
+      .pageButton
+        a.active(href='javascript:void(0)' )=data.current
+      while j<4
+        if data.current+j <= data.max
+          .pageButton
+            a(href= ( data.pageLink!=null ? data.pageLink : data.link )  + (data.table!=null ? data.table : "table/" )+ (parseInt(data.current)+j))=data.current+j
+        - j++    
+      if data.current<data.max
+        .pageButton
+          a(href= ( data.pageLink!=null ? data.pageLink : data.link ) +(data.table!=null ? data.table : "table/" )+(parseInt(data.current)+1)) &raquo;  
+  script. 
+    $(function() {
+      $("#search-box>input").val((new URLSearchParams(window.location.search)).get('search'))
+      $( "input[type='checkbox']" ).click(function() {
+          event.stopPropagation();
+      });
+      
+      $('#search-box>input').keyup(function(e){
+          if(e.keyCode == 13)
+          {
+              location.href="?search="+$(this).val()
+          }
+      });
+       $( ".skip" ).click(function() {
+          event.stopPropagation();
+          Dynajax('skip','s',basariliReload,null,false,{ targetId:parseInt($(this).attr("data-id")) },true);
+          event.cancelBubble=true
+      });
+    });
+  if data.notifyLink
+    script.    
+      $(function() {
+        $( ".notify" ).click(function() {
+            event.stopPropagation();
+            var tmpStatus=$(this).find("input[type='checkbox']").prop('checked')
+            Dynajax('#{data.notifyLink}','l',setChecked,{t:this,rc:tmpStatus},false,{ status:tmpStatus,id:#{ data.id && data.id!="table" ? data.id  :  "null" },targetId:parseInt($(this).attr("data-id"))});
+            event.cancelBubble=true
+        });
+
+      });
+  else
+    script.
+      $(function() {
+        $( ".notify" ).click(function() {
+          event.stopPropagation();
+          var tmpStatus=$(this).find("input[type='checkbox']").prop('checked')
+          Dynajax('setNotify','l',setChecked,{t:this,rc:tmpStatus},false,{ status:tmpStatus,typeId:#{  data.typeId ? JSON.stringify(data.typeId)  :  "null"  },targetId:parseInt($(this).attr("data-id"))});
+          event.cancelBubble=true
+      });
+
+      });

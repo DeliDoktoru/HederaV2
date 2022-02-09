@@ -1,0 +1,53 @@
+doctype html
+html
+  head
+    link(rel='stylesheet' href='/stylesheets/cedrus.css')
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/css/splide.min.css')
+    script(src='https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/js/splide.min.js')
+    title Page Title
+  body
+    .header
+    .top
+      h1 Clash Rush 
+    .left
+      .splide
+        .splide__track
+          ul.splide__list
+            li.splide__slide 
+              img.slide-image(src=`/images/image1.png`  )
+            li.splide__slide
+              img.slide-image(src=`/images/image2.png`  )
+    .rigth
+      ul.list
+        li
+          .node
+            h2 MANTRA
+            .container
+              |  Koşan karakter diğer karakterleri yanına alıp aynı seviyedeki karakterleri gruplayarak bölüm sonuna ulaşmaya çalışır.  
+        li
+          .node
+            h2 CORE LOOP
+            .container
+              | • Oyun başlar
+              br  
+              | • Koşu sırasında diğer karakterleri toplayarak kalabalıklaşır.
+              br  
+              | • Aynı seviyedeki karakterler birleşip bir üst seviye olur.
+              br  
+              | • Karakterler sabit ve hareketli engellerden kaçar.
+              br  
+              | • Engele çarptığı zaman bütün karakterler ortaya çıkıp tekrar birleşir.
+              br  
+              | • Oyun sonunda bütün karakterler birinci seviye olur.
+              br  
+              | • Bölüm sonunda kapı önündeki düşman karakterleri grubumuzdakiler bir bir yok ederek ilerleriz.
+              br  
+              | • Oyun biter
+              br  
+        li
+          .node
+
+
+  script. 
+    new Splide( '.splide' ).mount();
+

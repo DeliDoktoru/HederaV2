@@ -1,0 +1,16 @@
+doctype html
+html
+  head
+    include head.pug
+  body
+    .login-card
+      .login-type
+        h3 HEDERA
+      h1 Giriş
+      h2 Kullanıcı Adı
+      input(name="username" ajax-key="l" ) 
+      h2 Şifre 
+      input(type="password" name="password" ajax-key="l")
+      button.green-button(onclick="Dynajax('login','l',toDashboard)")="Giriş Yap"
+
+      

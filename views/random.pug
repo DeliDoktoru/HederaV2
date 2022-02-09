@@ -1,0 +1,5 @@
+extends layout
+
+block content
+  each item in ids
+      iframe(src='/game/'+item.id)

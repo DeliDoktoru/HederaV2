@@ -1,0 +1,266 @@
+@font-face {
+    font-family: hedera;
+    src: url(./../fonts/sf-pro-display_regular.woff2);
+  }
+
+  @font-face {
+    font-family: hedera-bold;
+    src: url(./../fonts/sf-pro-display_bold.woff2);
+  }
+@page { size: auto;  margin: 5px 20px 0mm 20px;   }
+
+
+
+@media print {
+    *{
+        -webkit-print-color-adjust: exact; 
+    }
+    .dont-breake{
+        break-inside: avoid;
+
+    }
+    body{
+        background-color: #fff !important;
+
+    }
+    #mechanics{
+        border: 0px solid black;
+    }
+    html, body {
+        height: 100%;
+    }
+ 
+}
+.dummy{
+    height: 0px;
+    width: 100%;
+    float: left;
+    background-color: #fff;
+}
+
+@media only screen and (max-width: 800px) {
+    body{
+        margin-left: 0px  !important;
+        margin-right: 0px !important;
+        width: 100%  !important;
+    }
+  }
+.renk1{
+}
+
+.top{
+    height: 80px;
+    border-radius: 4px;
+    text-align: center;
+    margin-bottom: 6px;
+    padding-top: 1px;
+}
+.header{
+    height: 40px;
+    width: 100%;
+}
+.top h1{
+    font-size: 45px;
+    margin: 0px;
+    padding: 10px;
+    font-weight: 200;
+}
+body{
+    font-family: hedera;
+ border-top: 2px;
+ border-left: 2px;
+ border-right: 2px;
+ border-color: #fff;
+ margin:0;
+ padding: 6px 6px 6px 6px;
+ background-color: #fff;
+ zoom: 0.8;
+ width:878px;
+ margin: auto;
+}
+.ml0{
+    margin-left: 3px;
+    font-size: 24px;
+}
+.mb1{
+    margin-bottom: 4px;
+}
+.mt2{
+    margin-top: 15px;
+}
+.mt1{
+    margin-top: 4px;
+}
+.mt5{
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.pb7{
+    padding-bottom: 28px;
+}
+.s{
+    border-bottom: 1px solid #d6d6d6
+}
+.p {
+    padding-top: 20px;
+    padding-bottom: 32px;
+}
+.f{
+    font-size: 20px;
+    line-height: 1.22;
+    letter-spacing: 0.027em;
+    font-style: normal;
+    color:#636366 !important;
+}
+.fb{
+    padding: 16px;
+    border-bottom: 1px solid #d6d6d6
+}
+.list li:nth-child(odd){
+    background-color: #cee4e6;
+}
+.list li:nth-child(even){
+    background-color: #bddade;;
+}
+.list li:nth-child(odd) .node h2{
+    background-color: #cee4e6;
+}
+.list li:nth-child(even) .node h2{
+    background-color: #bddade;;
+}
+.list li{
+    width: 100%;
+    list-style-type: none;
+    padding-top: 5%;
+    padding-bottom: 5%;
+}
+
+.list{
+    padding: 0px;
+    margin: 0px;
+    box-shadow: 0px 6px 5px 0px black;
+    border: 2px solid #fff;
+}
+.rigth{
+    width: 100%;
+    float: right;
+}
+.left{
+    width: 100%;
+    float: left;
+    height: auto;
+}
+.pdf{
+    position: relative;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    float: right;
+    margin-top: 13px;
+    margin-right: 10px;
+}
+h2{
+    margin-top: 0px;
+    font-size: 28px;
+    margin-bottom: 17px;
+    line-height: 1.22;
+    font-weight: 500;
+    letter-spacing: 0.040em;
+    color:#000;
+
+}
+.imgtxt{
+    font-weight: bold;
+    color: white;
+    font-size: 30px;
+    background-color: #5a5a5a;
+    opacity: 0.7;
+}
+.imgtxt {
+    margin: 0px auto;
+    position: relative;
+    display: inline-block;
+    bottom: 50px;
+    display: none;
+
+}
+#imgsh{
+    text-align: center;
+    display: none;
+}
+#mantrah{
+    display: none;
+    margin-bottom: 5px;
+}
+.center {
+    text-align: center;
+    height: 0px;
+}
+.yns{
+    width: 49%;
+    float: left;
+    margin-right: 1%;
+    margin-top: 0px;
+}
+.yns2{
+    width: 99.5%;
+    float: left;
+    height: 98%;
+    min-height: 350px;
+}
+.splide{
+    height: 100%;
+    margin-bottom: 30px;
+}
+.slide-image{
+    width: 100%;
+    object-fit: contain;
+}
+.splide__slide{
+    margin: auto;
+}
+.splide__pagination{
+    bottom: 0 !important;
+    margin-bottom: -18px !important;
+}
+#imgsh .slide-image{
+    margin-top: 6px;
+}
+a{
+    color: #99b7ef;
+    font-weight: bold;
+    font-size: 20px;
+}
+#genre,#progress,#goals,#chalanges{
+    margin-left: 21px;
+    margin-bottom: 15px;
+}
+.mantra{
+    margin-left: 16px
+}
+.splide__arrow--prev {
+    left: -0.8em !important; 
+}
+.clear{
+    clear:both;
+}
+.splide__track{
+    margin-left: 19px;
+}
+.splide__arrow--next{
+    right: -1.6em !important;
+
+}
+.splide__pagination__page.is-active{
+    background: #5a5a5a !important;
+}
+.splide__pagination__page{
+    background: #908e8e !important;
+}
+.mt9{
+    margin-top: 50px;
+    margin-bottom: -5px;
+}
+.text-left{
+    text-align: left;
+}

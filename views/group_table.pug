@@ -1,0 +1,129 @@
+extends layout
+
+block content
+  .row
+    if data.search
+      .col-md-4  
+        .input-group.no-border#addtag-box
+          input.form-control(type='text' placeholder="Grup Ekle...")
+          .input-group-append
+            .input-group-text.c
+              i.fas.fa-plus-circle
+      .col-md-4 
+      .col-md-4 
+        .input-group.no-border#search-box
+          input.form-control(type='text' value='' placeholder='Arama...')
+          .input-group-append
+            .input-group-text
+              i.nc-icon.nc-zoom-split
+    .col-md-12
+      .card
+        .card-body
+          .table-responsive
+            table.table.table-shopping.table-striped.table-hover
+              thead
+                tr
+                  each key,i in data.tableHead
+                    if key=="id" && data.pp 
+                      th
+                    else if key=="id"
+                      th #
+                    else 
+                      th=data.turkce[i]
+                  if data.customNotifyText
+                    th.text-center=data.customNotifyText    
+                  else if data.checkbox    
+                    th.text-center Bildirim
+                  if data.skip    
+                    th.text-center Takip kaldırma
+              tbody
+                if data.tableBody.length==0
+                  tr
+                    td 
+                    td Tabloda veri yok.
+                else 
+                  each item in data.tableBody
+                      tr(data-id=item.id onclick=(data.link==undefined?"":"location.href='"+data.link+item.id+"'") onauxclick=(data.link==undefined?"":"window.open('"+data.link+item.id+"', '_blank');") class=(data.link==undefined?"":"tdata")   )
+                        each key,index in data.tableHead
+                          if index==data.dateIndex-1
+                            - let tmp = item[key].substring(0,10).split("-")
+                            td=tmp[2]+"-"+tmp[1]+"-"+tmp[0]    
+                          else if data.html
+                            td!=item[key]
+                          else if data.pp && index==0 && data.link
+                            td
+                              .img-container
+                                img(src=`/games/${item.id}/0.jpg`  ) 
+                          else  
+                            td=item[key]
+                        if data.checkbox || data.customNotifyText  
+                          td.notify.center(data-id=item.id ) 
+                            .form-check
+                              label.form-check-label(for='cb'+item.id)
+                                input.form-check-input(id="cb"+item.id type='checkbox' name='cb'  checked=item.notify && item.notify==1 ? true : false  )
+                                span.form-check-sign
+                        if data.skip    
+                          td.center
+                            button.btn.btn-danger.btn-icon.btn-sm(data-id=item.id  type='button' rel='tooltip' onclick='skip()')
+                              i.fa.fa-times
+                        td.center
+                          button.e.btn.btn-warning.btn-icon.btn-sm(  type='button' rel='tooltip' )
+                            i.fa.fa-edit
+                        td.center
+                          button.r.btn.btn-danger.btn-icon.btn-sm(  type='button' rel='tooltip' )
+                            i.fa.fa-times
+  if data.tableBody.length!=0
+    .pager
+      if data.current!=1
+        .pageButton
+          a(href= ( data.pageLink!=null ? data.pageLink : data.link ) + (data.table!=null ? data.table : "table/" )+parseInt(data.current-1)  ) &laquo;
+      - var i = 3,j=1;  
+      while i>0
+        if data.current-i > 0
+          .pageButton
+            a(href=( data.pageLink!=null ? data.pageLink : data.link ) + (data.table!=null ? data.table : "table/" )+(parseInt(data.current)-i))=data.current-i
+        - i--
+      .pageButton
+        a.active(href='javascript:void(0)' )=data.current
+      while j<4
+        if data.current+j <= data.max
+          .pageButton
+            a(href= ( data.pageLink!=null ? data.pageLink : data.link )  + (data.table!=null ? data.table : "table/" )+ (parseInt(data.current)+j))=data.current+j
+        - j++    
+      if data.current<data.max
+        .pageButton
+          a(href= ( data.pageLink!=null ? data.pageLink : data.link ) +(data.table!=null ? data.table : "table/" )+(parseInt(data.current)+1)) &raquo;  
+  script. 
+    var groupId=null;
+    $(function() {
+      $("#search-box>input").val((new URLSearchParams(window.location.search)).get('search'))
+        $("#addtag-box .c").click(function(){
+         groupId=null 
+         $("#addtag-box>input").val("")
+          $("#addtag-box .c>i").removeClass("fa-ban").addClass("fa-plus-circle")
+      })
+       $(".r").click(function(){
+         event.stopPropagation();
+         Dynajax('group','n',basariliReload,null,false,{ method:"delete",id:$(this).parent().parent().attr("data-id")},true);
+         event.cancelBubble=true
+      })
+       $(".e").click(function(){
+         event.stopPropagation();
+         groupId=$(this).parent().parent().attr("data-id")
+         $("#addtag-box .c>i").removeClass("fa-plus-circle").addClass("fa-ban")
+         $("#addtag-box>input").val($(this).parent().parent().find("td").eq(0).text())
+         event.cancelBubble=true
+      })
+      $('#search-box>input').keyup(function(e){
+          if(e.keyCode == 13)
+          {
+              location.href="?search="+$(this).val()
+          }
+      });
+      $('#addtag-box>input').keyup(function(e){
+          if(e.keyCode == 13)
+          {   
+              Dynajax('group','s',basariliReload,null,false,{ method: groupId==null ? "create" : "update", text:$(this).val() , id:groupId });
+          }
+      });
+    });

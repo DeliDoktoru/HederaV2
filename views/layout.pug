@@ -1,0 +1,254 @@
+doctype html
+html
+  head
+    meta(http-equiv='content-type' content='text/html;charset=utf-8')
+    meta(charset='utf-8')
+    link(rel='icon' type='image/png' href='/images/favicon.ico')
+    meta(http-equiv='X-UA-Compatible' content='IE=edge,chrome=1')
+    title=title
+    meta(content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport')
+    link(type="text/css" href='/stylesheets/bootstrap.min.css' rel='stylesheet')
+    link(type="text/css" href='/stylesheets/paper-dashboard.min.css?v=2.0.1' rel='stylesheet')
+    link(href='/stylesheets/jquery-ui.min.css', rel='stylesheet')
+    script(src='/javascripts/jquery.min.js' type='text/javascript')
+  body
+    #shadow-mask
+    #loader
+    .wrapper
+      .sidebar(data-color='black' data-active-color='info')
+        .logo
+          a.simple-text.logo-mini(href='#')
+            .logo-image-small
+              i.fas.fa-crown
+          a.simple-text.logo-normal(href='#')
+            i.fas.fa-crown
+            |  Hedera
+        .sidebar-wrapper
+          ul.nav
+            li
+              a(href='/dashboard')
+                i.fas.fa-home
+                p Ana Sayfa
+            li
+              a(data-toggle='collapse' href='#oyunlar')
+                i.fas.fa-chess
+                p
+                  | Oyunlar
+                  b.caret
+              #oyunlar.collapse
+                ul.nav
+                  li
+                    a(href='/index/1')
+                      .sidebar-mini-icon
+                        i.fas.fa-clock
+                      span.sidebar-normal  Son Çıkan Oyunlar 
+                  li
+                    a(href='/game/table')
+                      .sidebar-mini-icon 
+                        i.fas.fa-gamepad
+                      span.sidebar-normal  Tüm Oyunlar 
+                  li
+                    a(href='/system/table')
+                      .sidebar-mini-icon 
+                        i.fas.fa-history
+                      span.sidebar-normal  Sistem Takip Listesi 
+                  li
+                    a(href='/myfollow/table')
+                      .sidebar-mini-icon 
+                        i.fas.fa-heart
+                      span.sidebar-normal  Yayıncıların Oyunları
+                  li
+                    a(href='/random')
+                      .sidebar-mini-icon
+                        i.fas.fa-random
+                      span.sidebar-normal  Rastgele iki oyun
+                  li
+                    a(href='/manual/table/1')
+                      .sidebar-mini-icon
+                        i.fas.fa-check-double 
+                      span.sidebar-normal  Elle Eklenen Oyunlar
+            li
+              a(href='/company/table')
+                i.fas.fa-users-cog
+                p Yayıncılar
+            li
+              a(href='/manual')
+                i.fas.fa-satellite-dish  
+                p  Elle Ekleme 
+            li
+              a(data-toggle='collapse' href='#notifications')
+                i.fas.fa-envelope-open-text
+                p
+                  | Bildirimler
+                  b.caret
+              #notifications.collapse
+                ul.nav
+                  li
+                    a(href='/notification/table')
+                      .sidebar-mini-icon
+                        i.fas.fa-bell
+                      span.sidebar-normal  Bildirimler 
+                  li
+                    a(href='/notification_request/1')
+                      .sidebar-mini-icon 
+                        i.fas.fa-table
+                      span.sidebar-normal  Bildirimler Oyunlar
+                  li
+                    a(href='/notification_request/2')
+                      .sidebar-mini-icon
+                        i.fas.fa-table
+                      span.sidebar-normal  Bildirimler Yayıncılar
+            li
+              a(data-toggle='collapse' href='#prototipler')
+                i.fas.fa-pencil-ruler
+                p
+                  | Prototipler
+                  b.caret
+              #prototipler.collapse
+                ul.nav
+                  li
+                    a(href='/prototype/form')
+                      .sidebar-mini-icon 
+                        i.fas.fa-plus-circle
+                      span.sidebar-normal  Prototip Oluştur 
+                  li
+                    a(href='/prototype/table')
+                      .sidebar-mini-icon
+                        i.fas.fa-table
+                      span.sidebar-normal  Prototipleri Listele  
+            li
+              a(href='/user_tag/table')
+                i.fas.fa-tags
+                p Etiketlerim
+            li
+              a(data-toggle='collapse' href='#sistem')
+                i.fab.fa-redhat
+                p
+                  | Sistem
+                  b.caret
+              #sistem.collapse
+                ul.nav
+                  li
+                    a(href='/log')
+                      .sidebar-mini-icon
+                        i.fas.fa-boxes
+                      span.sidebar-normal  Log 
+                  li
+                    a(href='/group/table')
+                      .sidebar-mini-icon
+                        i.fas.fa-user-friends
+                      span.sidebar-normal  Gruplar 
+                  li
+                    a(href='/user/table/1')
+                      .sidebar-mini-icon 
+                        i.fas.fa-users
+                      span.sidebar-normal  Kullanıcılar
+            li
+              a(href='/exit')
+                i.fas.fa-door-open
+                p Çıkış     
+      .main-panel
+        // Navbar
+        nav.navbar.navbar-expand-lg.navbar-absolute.fixed-top.navbar-transparent
+          .container-fluid
+            .navbar-wrapper
+              .navbar-minimize
+                button#minimizeSidebar.btn.btn-icon.btn-round
+                  i.nc-icon.nc-minimal-right.text-center.visible-on-sidebar-mini
+                  i.nc-icon.nc-minimal-left.text-center.visible-on-sidebar-regular
+              .navbar-toggle
+                button.navbar-toggler(type='button')
+                  span.navbar-toggler-bar.bar1
+                  span.navbar-toggler-bar.bar2
+                  span.navbar-toggler-bar.bar3
+              if notify!=undefined
+                .form-check.cbkutu(data-id=data.id)
+                  label.form-check-label(for='cb'+data.id)
+                    input.form-check-input(id="cb"+data.id type='checkbox' name='cb'  checked=notify ? true : false )
+                    span.form-check-sign=title
+              else 
+                a.navbar-brand(href='#')=title      
+        .content
+          .row
+            .col-8
+              if categorys
+                h4.card-title Etiketler
+                .row
+                  .col-3
+                    .dropdown
+                      button.btn-sm#dropdownMenuButton.dropdown-toggle.btn.btn-primary.btn-round.btn-block(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' style="min-width: 80px;")
+                        | Ekle 
+                      .dropdown-menu.user-categorys.dropdown-menu-right(aria-labelledby='dropdownMenuButton' style='will-change: transform;' data-id=(data && data.id) )
+                        each item in usercategorys
+                          a.dropdown-item(href='#' data-id=item.id)=item.text
+                  .col-9      
+                    .bootstrap-tagsinput.primary-badge
+                      each item in categorys
+                        span.badge.badge.badge-success=item
+                      each item in userselectedcategorys
+                        span.badge.badge.badge-success.custom-category=item.text
+                          span.r(data-id=item.id data-role='remove')
+            .col-4
+              .card.card-stats.note
+                .card-body
+                  .row
+                    .col-12
+                      .numbers
+                        p.card-category#note(data-id=data && data.id)=note
+                .card-footer
+                  hr
+                  .stats
+                    i.fas.fa-edit
+                    i.fas.fa-paper-plane
+                    i.fas.fa-trash-alt
+                    i.fas.fa-ban 
+          block content
+        footer.footer.footer-black.footer-white
+          .container-fluid
+            .row
+              .credits.ml-auto
+                span.copyright
+                  i.fa.fa-heart.heart                 
+    script.
+      if(window.location !== window.parent.location){
+        document.getElementsByClassName("sidebar")[0].remove()
+        document.getElementsByClassName("navbar-toggle")[0].remove()
+        //document.getElementsByClassName("container-fluid")[0].remove()
+      }
+      $(function() {
+          $(".sidebar-wrapper").find("li").each(function(){
+              if( $(this).text().trim() == "!{ (  title ) }" ){
+                  $(this).addClass("active")
+              }
+          })
+
+        
+      });
+    
+
+    script(src='/javascripts/core.js' type='text/javascript' )
+    script(src='/javascripts/popper.min.js' type='text/javascript' async)
+    script(src='/javascripts/bootstrap.min.js' type='text/javascript' async)
+    script(src='/javascripts/bootstrap-switch.js' type='text/javascript' async)
+    script(src='/javascripts/sweetalert2.min.js' type='text/javascript' async)
+    script(src='/javascripts/jquery.bootstrap-wizard.js' async type='text/javascript')
+    script(src='/javascripts/bootstrap-tagsinput.js' async  type='text/javascript')
+    script(src='/javascripts/jasny-bootstrap.min.js' async  type='text/javascript')
+    script(src='/javascripts/buttons.js' async  type='text/javascript')
+    script(src='/javascripts/bootstrap-notify.js' async  type='text/javascript')
+    script(src='/javascripts/paper-dashboard.min.js?v=2.0.1' async type='text/javascript')
+    script(src='/javascripts/jquery.mask.js' type='text/javascript')
+    script(src='/javascripts/moment.min.js' type='text/javascript')
+    script(src='/javascripts/bootstrap-datetimepicker.js' type='text/javascript')
+    script(src='/javascripts/jquery-ui.js')    
+    script(src='/javascripts/datepicker-tr.js')    
+    script(src='/javascripts/javascript.js' type='text/javascript')
+    link(rel='stylesheet' href='https://pro.fontawesome.com/releases/v5.10.0/css/all.css' type="text/css")
+    link(href='/stylesheets/core.css' rel='stylesheet' type="text/css")
+    link(href='https://fonts.googleapis.com/css?family=Montserrat:400,700,200' rel='stylesheet' type="text/css")
+    script.
+      message="!{ (  message ) }"
+      if( message ){
+         showNotification('top','right',"danger",message);
+      }
+      

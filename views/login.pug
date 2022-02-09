@@ -1,0 +1,50 @@
+doctype html
+html
+  head
+    meta(http-equiv='content-type' content='text/html;charset=utf-8')
+    meta(charset='utf-8')
+    link(rel='icon' type='image/png' href='/images/favicon.ico')
+    meta(http-equiv='X-UA-Compatible' content='IE=edge,chrome=1')
+    title=title
+    meta(content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport')
+    script(src='/javascripts/jquery.min.js'  type='text/javascript')
+  body.login-page
+    .wrapper.wrapper-full-page
+      .full-page.section-image
+        .content
+          .container
+            .col-lg-4.col-md-6.ml-auto.mr-auto
+              form.form(method='' action='#')
+                .card.card-login
+                  .card-header
+                    .card-header
+                      h3.header.text-center HEDERA
+                  .card-body
+                    .input-group
+                      .input-group-prepend
+                        span.input-group-text
+                          i.nc-icon.nc-single-02
+                      input.form-control(type='text' name="username" ajax-key="l" placeholder='Kullanıcı Adı...')
+                    .input-group
+                      .input-group-prepend
+                        span.input-group-text
+                          i.nc-icon.nc-key-25
+                      input.form-control(type='password' name="password" ajax-key="l" placeholder='Şifre')
+                  .card-footer
+                    a.btn.btn-info.btn-round.btn-block.mb-3(href='#' onclick="Dynajax('login','l',toDashboard)") Giriş
+        footer.footer.footer-black.footer-white
+          .container-fluid
+            .row
+              .credits.ml-auto
+                span.copyright
+                  i.fa.fa-heart.heart
+    link(type="text/css" href='/stylesheets/bootstrap.min.css' rel='stylesheet')
+    link(type="text/css" href='/stylesheets/paper-dashboard.min.css?v=2.0.1' rel='stylesheet')
+    script(src='/javascripts/core.js' type='text/javascript' async)
+    script(src='/javascripts/bootstrap.min.js' type='text/javascript' async)
+    script(src='/javascripts/bootstrap-notify.js' async  type='text/javascript')
+    script(src='/javascripts/paper-dashboard.min.js?v=2.0.1' async type='text/javascript')
+    script(src='/javascripts/javascript.js' type='text/javascript')
+    link(rel='stylesheet' href='https://pro.fontawesome.com/releases/v5.10.0/css/all.css' type="text/css")
+    link(href='/stylesheets/core.css' rel='stylesheet' type="text/css")
+    link(href='https://fonts.googleapis.com/css?family=Montserrat:400,700,200' rel='stylesheet' type="text/css")

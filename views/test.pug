@@ -1,0 +1,161 @@
+doctype html
+html
+  head
+    meta(http-equiv='Content-Type' content='text/html;charset=UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+    link(rel='stylesheet' href='./stylesheets/cedrus.css')
+    script(src='./javascripts/jquery.min.js')
+    link(rel='stylesheet' href='https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/css/splide.min.css')
+    script(src='https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/js/splide.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.debug.js')
+    link(href='https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap' rel='stylesheet')
+    title  
+    link(rel='icon' href='./src/favicon.ico' type='image/x-icon')
+  body
+    img.pdf(src='./images/pdf.png')
+    .top.s.renk1
+      h1#name
+    #mantrah
+      .s.p.renk1
+        h2 MANTRA
+        .f.mantra
+    .left
+      .s.p.renk1
+        h2 MANTRA
+        .f.mantra
+      h2.mt5 DESIGN
+      .s.mt2.renk1.pb7
+        .splide
+          .splide__track
+            ul#imgs.splide__list
+      #links.f.fb
+    .rigth.s.renk1
+      .p
+        h2 CORE LOOP
+        #loop.f.fb
+        h2.mt5 DYNAMICS
+        .f.fb
+          h2.ml0.mb1 GENRE
+          #genre  
+          h2.ml0.mb1 PROGRESS
+          #progress
+          h2.ml0.mb1 GOALS
+          #goals
+          h2.ml0.mb1 CHALLENGES
+          #chalanges
+        h2.mt5 MECHANICS
+        #mechanics.f.fb
+    #d1.dummy
+    #imgsh
+      .rigth.s.renk1
+        .p.f
+          h2.mt5 DESIGN
+    #d2.dummy  
+    script.
+      String.prototype.replaceAll = function (search, replacement) {
+      var target = this;
+      return target.replace(new RegExp(search, 'g'), replacement);
+      };
+      gameName="Fisherman 3D"
+      mantra = `Balikci teknesiyle duz bir kanyonda balik tutarak ilerliyoruz.`
+      not="Instagram için CedrusGames"
+      links = ["https://www.instagram.com/p/COgBNWcH_Bx/"]
+      linksTxt= []
+      loop = `Oyunun gidişatı
+      • Oyun başlar.
+      • En dusuk seviyeli balikci teknesi (sandal) ile baslariz.
+      • Yolumuzun uzerindeki engeller standart hypercasual engelleri.
+      • Arkamizdaki sabit ag ile saga sola giderek kanyondaki baliklari toplariz.
+      • Bölüm sonunda topladigi baliklari mekanik kantara atar 100-1000$ arasi para kazanir (1x,2x-10x gibi).
+      • Oyun biter
+      `
+      genre = `Hyper Casual Runner.`
+      progress = `Bölümler ilerledikçe yeni engel cesitleri ve zorluklar artar.
+      • Kutuk -Misina
+      .......
+      • Sandal -Olta
+      ......       Upgrade sistemi eklenebilir olacak
+      • Tekne -Zipkin
+      .......
+      • Gemi -Ag
+      • Upgrade icin kanyondan kutu toplariz.
+      `
+      goals = `Mezatta en cok baligi satmak.`
+      chalanges = `Hareketli ve sabit engeller.
+      • Ruzgar ufleyen engeller.
+      `
+      mechanics = `Oyunun başlıca mekanikleri neler
+      • Hareket swipe degil joystick ile olacak.
+      • Engellere carpinca teknemizin upgrade duser gemiden sandala dogru iner ve gemiden baliklar dokulur.
+      • Kutu toplama.
+      • Balik toplama
+      • Bölüm sonunda baliklari satarak en fazla parayi kazanma.`
+      img = [
+      ["./images/image1.png", "./images/image2.png"]
+      ]
+      imgtxt = [
+      ["Surf Rush", " Canal Blockage 3D"]
+      ]
+      $(function () {
+      $(".mantra").html(mantra)
+      $("#loop").html(loop.replaceAll("\\n", "<br/>"))
+      $("#genre").html("&emsp;" + genre.replaceAll("\\n", "<br/>"))
+      $("#progress").html("&emsp;" + progress.replaceAll("\\n", "<br/>"))
+      $("#goals").html("&emsp;" + goals.replaceAll("\\n", "<br/>"))
+      $("#chalanges").html("&emsp;" + chalanges.replaceAll("\\n", "<br/>"))
+      $("#mechanics").html(mechanics.replaceAll("\\n", "<br/>"))
+      $("#links").append(not.replaceAll("\\n", "<br/>") +"<br/>" )
+      $("#links").append(links.map((x,i)=> `<a href='${x}' target='_blank'>${ linksTxt[i] ? linksTxt[i] :  x }</a><br/>`))
+      $("#name").text(gameName)
+      $("title").text(gameName)
+      for (i = 0; i < img.length; i++) {
+      var imgg = ""
+      var imgg2 = ""
+      if (img[i].length == 1) {
+      if (img[i][0].indexOf("youtube")) {
+      imgg += `<div class="yns2">
+      <iframe width="100%" height="100%" src="${img[i][0]}"></iframe>
+      <div class="center">
+      <div class="imgtxt">${imgtxt[i][0]}</div>
+      </div> </div>`
+      $("#imgs").append(`<li class="splide__slide">${imgg}
+      </li>`)
+      }
+      } else {
+      for (j = 0; j < img[i].length; j++) {
+      imgg += `<div class="yns"> <img class="slide-image" src="${img[i][j]}">
+      <div class="center">
+      <div class="imgtxt">${imgtxt[i][j]}</div>
+      </div> </div>`
+      imgg2 += `<div class="yns"><img class="slide-image" src="${img[i][j]}"><div class="center">
+      <div class="imgtxt">${imgtxt[i][j]}</div>
+      </div></div>`
+      }
+      $("#imgs").append(`<li class="splide__slide">${imgg}
+      </li>`)
+      $("#imgsh>div>div").append(imgg2)
+      }
+      }
+      $("#imgsh>div").append(' <h2 class="mt5">LINKS & NOTE</h2>')
+      $("#imgsh>div").append( '<div class="p"><div class="fb f">'+not+'<br/>' + links.map((x,i)=> `<a href='${x}' target='_blank'>${ linksTxt[i] ? linksTxt[i] :  x }</a><br/>`) +' </div></div>');
+      new Splide('.splide').mount();
+      $(".pdf").click(function () {
+      $(".rigth").css("width", "100%");
+      $(".left").css("display", "none")
+      $(".rigth").css("height", "auto")
+      $("#imgsh").css("display", "block")
+      $("#mantrah").css("display", "block")
+      $("body").css("width", "100%")
+      $(".pdf").hide();
+      var ot = document.getElementById("d1").offsetTop
+      if (ot < 1450) {
+      $("#d1").css("height", (1450 - ot) + "px")
+      }
+      var ot2 = document.getElementById("d2").offsetTop
+      if (ot2 < 2840) {
+      $("#d2").css("height", (2840 - ot2) + "px")
+      }
+      window.print();
+      location.reload()
+      })
+      });
