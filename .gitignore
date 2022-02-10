@@ -41,6 +41,7 @@ build/Release
 public/games/
 node_modules/
 jspm_packages/
+yedekler/
 
 # TypeScript v1 declaration files
 typings/
