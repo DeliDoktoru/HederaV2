@@ -1,0 +1,276 @@
+.row
+  if data.search 
+    .col-md-8 
+    .col-md-4 
+      .input-group.no-border#search-box
+        input.form-control(type='text' value='' placeholder='Arama...')
+        .input-group-append
+          .input-group-text
+            i.nc-icon.nc-zoom-split
+  .col-md-12
+    .card
+      .card-body
+        .table-responsive
+          table.table.table-shopping.table-striped.table-hover
+            thead
+              tr
+                each key,i in data.tableHead
+                  if key=="id" 
+                    th(col="id") #
+                      if !data.orderBy
+                        i.fa.fa-arrow-up
+                  else 
+                    th(col=data.tableHead[i])=data.turkce[i]
+                      if data.orderBy==data.tableHead[i]
+                        i.fa.fa-arrow-up
+                if data.customNotifyText
+                  t.text-center(col="notify")=data.customNotifyText    
+                else if data.checkbox    
+                  th.text-center(col="notify") Bildirim
+                if data.skip    
+                  th.text-center(col="skip") Takip kaldırma
+                if data.checker    
+                  th.text-center(col="checker") Sistem yayıncı takibi
+              tr
+                each key,i in data.tableHead
+                  th(col=data.tableHead[i]).col-searcher
+                    -if(!data.dateIndex) data.dateIndex=[]
+                    if data.dateIndex.some(dt=>dt-1==i  )
+                      .input-group.no-border
+                        input.form-control.datepicker(type='text' value='' extra="min" value-type="date" placeholder="Başlangıç tarihi")
+                      .input-group.no-border
+                        input.form-control.datepicker(type='text' value='' extra="max" value-type="date" placeholder="Bitiş tarihi")
+                    else   
+                      .input-group.no-border
+                        input.form-control(type='text' value='' placeholder=data.turkce[i] +" ara")
+                if data.customNotifyText || data.checkbox 
+                  th(col="notify").col-searcher
+                    .form-check
+                      label.form-check-label.text-center(for='cbn')
+                        input.form-check-input(id="cbn" type='checkbox' name='cb'  )
+                        span.form-check-sign
+                if data.skip 
+                  th(col="skip").col-searcher
+                    .form-check
+                      label.form-check-label.text-center(for='cbs')
+                        input.form-check-input(id="cbs" type='checkbox' name='cb' disabled )
+                        span.form-check-sign
+                if data.checker 
+                  th(col="checker").col-searcher
+                    .form-check
+                      label.form-check-label.text-center(for='cbc')
+                        input.form-check-input(id="cbc" type='checkbox' name='cb'  )
+                        span.form-check-sign
+            tbody
+.float-right#total 
+.pager 
+script. 
+  var data=!{JSON.stringify(data)}
+  data.orderType="D"
+  data.orderBy=data.orderBy || "id"
+  data.current=1
+  data.srcTxt={}
+  function table(result){
+    try{
+      $(".table>tbody").html("");
+      if(result.d[0]?.length){
+        result.d[0].forEach(row=> {
+            let tdExtra=""
+            if (data.checkbox || data.customNotifyText  ){
+              tdExtra+=`<td class="notify center"  onclick="notify(${row.id},this)"> 
+                          <div class="form-check">
+                            <label class="form-check-label" for="cb${row.id}">
+                              <input class="form-check-input" id="cb${row.id}" type="checkbox" name="cb" onclick="event.stopPropagation();" ${row.notify && row.notify==1 ? "checked" : "" }><span class="form-check-sign"></span>
+                            </label>
+                          </div>
+                        </td>`
+            }
+            if(data.skip){
+              tdExtra+=`<td class="center" >
+                    <button class="btn btn-danger btn-icon btn-sm" type='button' rel='tooltip' onclick='skip(${row.id})'>
+                    <i class="fa fa-times"></i>
+                    </button> 
+                  </td>`
+            }
+            if(data.checker){
+              if(row.adi){
+                tdExtra+=`<td class="checker center" onclick="checker(${row.id},this)"> 
+                    <div class="form-check">
+                      <label class="form-check-label" for="ccb${row.id}">
+                        <input class="form-check-input" id="ccb${row.id}" type="checkbox" name="cb" onclick="event.stopPropagation();" ${row.checker && row.checker==1 ? "checked" : "" }><span class="form-check-sign"></span>
+                      </label>
+                    </div>
+                  </td>`
+              }else{
+                tdExtra+=`<td class="center" >
+                    <i class="fa fa-times"></i>
+                  </td>`
+              }
+            }
+          let tr=`
+              <tr class="tdata" row-id="${row.id}" onclick="${(data.link==undefined?"": "window.open('"+data.link+row.id+"', '_blank');")}">
+                  ${data.tableHead.map((key,index)=>{
+                    let td;
+                    if(!data.dateIndex) data.dateIndex=[]
+                    if(data.dateIndex.some(dt=>dt-1==index  )){
+                      let tmp = row[key].substring(0,10).split("-")
+                      td= tmp[2]+"-"+tmp[1]+"-"+tmp[0]
+                    }else if(data.pp && index==0 && data.link){
+                      td=`<div class="img-container"><img src="/games/${row.id}/0.jpg"></div>`
+                    }else{
+                      td=row[key]
+                    }
+                    return "<td>"+ td +"</td>"
+                  }).join("")}   
+                  ${tdExtra}                       
+              </tr>`
+          $(".table>tbody").append(tr)
+        })
+        //pager
+        var max = result.d[1][0].max;
+        $("#total").text(`Toplam Sayfa Sayısı:${Math.ceil(max / 16)}`)
+        data.max = max < 16 ? 1 : Math.ceil(max / 16);
+        var pager="";
+        var tmpUrl= (data.pageLink!=null ? data.pageLink : data.link) + (data.table!=null ? data.table : "table/")
+        if (data.current!=1){
+          pager+=`<div class="pageButton"><a onclick="data.current=${ parseInt(data.current-1) };refresh()" href="javascript:void(0)">«</a></div>`
+        }
+        var i = 3,j=1; 
+        while (i>0){
+          if (data.current-i > 0){
+            pager+=`<div class="pageButton"><a onclick="data.current=${ parseInt(data.current-i) };refresh()" href="javascript:void(0)">${data.current-i}</a></div>`
+          }
+          i--
+        }
+        pager+=`<div class="pageButton"><a class="active" href="javascript:void(0)">${data.current}</a></div>`
+        while (j<4){
+          if (data.current+j <= data.max){
+            pager+=`<div class="pageButton"><a onclick="data.current=${ parseInt(data.current+j) };refresh()" href="javascript:void(0)">${data.current+j}</a></div>`
+          }
+          j++
+        }
+        if(data.current<data.max){
+          pager+=`<div class="pageButton"><a onclick="data.current=${ parseInt(data.current+1) };refresh()" href="javascript:void(0)">»</a></div>`
+        }
+        $(".pager").html(pager)
+      }else{
+        $(".table>tbody").append(`<div>Tabloda veri yok.</div>`)
+        $(".pager").html("")
+        $("#total").text("")
+      }
+      
+    }catch(error){
+      console.log(error)
+    }
+  }
+  function convertTime(date){
+    var dateString = date; 
+    var dateParts = dateString.split("/");
+    var dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]); 
+    return dateObject.toISOString()
+  }
+  $(function() {
+    
+    refresh()
+    $("thead tr").eq(0).find("th").click(function(){
+        var s=$(this).attr("col")
+        if(s==data.orderBy){
+          data.orderType= data.orderType=="A" ? "D" : "A"
+        }else{
+          data.orderBy=s
+          data.orderType="D"
+        }
+        $("thead th>i").remove()
+        $(this).append( data.orderType=="A" ? '<i class="fa fa-arrow-down"></i>' : '<i class="fa fa-arrow-up"></i>' )
+        refresh()
+    })
+    $("thead .col-searcher input.datepicker").change(function(){
+      if($(this).val().length==10){
+        refresh(1,$(this).closest( ".col-searcher" ).attr("col"),$(this).val(),$(this).attr("extra"),$(this).attr("value-type"))
+      }
+    })
+    $("thead .col-searcher input").keyup(function(e){
+        if(e.keyCode == 13)
+        { 
+          refresh(1,$(this).closest( ".col-searcher" ).attr("col"),$(this).val(),$(this).attr("extra"),$(this).attr("value-type"))
+        }
+    });
+    $("thead .col-searcher input[type='checkbox']").change(function() {
+      if(this.checked) {
+        refresh(1,$(this).closest( ".col-searcher" ).attr("col"),1)
+      }else{
+        refresh(1,$(this).closest( ".col-searcher" ).attr("col"))
+      }
+    });    
+     
+    $("#search-box>input").val((new URLSearchParams(window.location.search)).get('search'))
+    $('#search-box>input').keyup(function(e){
+        if(e.keyCode == 13)
+        { 
+            if(! data.searchCol) data.searchCol="text"
+            data.srcTxt[data.searchCol]=$(this).val()
+            refresh(1)
+        }
+    });
+  });
+  function refresh(c,k,v,e,t){
+    if(c) {
+      data.current=c;
+    }
+    if(k){
+      if(v && v!="") {
+        if(t){
+          if(t=="date"){
+            v=convertTime(v)
+          }
+        }
+        if(e){
+          if(!data.srcTxt[k]) data.srcTxt[k]={}
+          data.srcTxt[k][e]=v
+        }else data.srcTxt[k]=v
+      }
+      else {
+        if(e && data.srcTxt[k]) {
+          delete data.srcTxt[k][e]
+          if(Object.keys(data.srcTxt[k]).length==0) delete data.srcTxt[k]
+        }
+        else delete data.srcTxt[k]
+      }
+    }
+    var postData={ current:(data.current-1)*16,orderBy:data.orderBy,orderType:data.orderType,srcTxt:data.srcTxt }
+    Object.assign(postData, data.sqlData);
+    Dynajax('table/#{data.procedure}','x',table,null,false,postData);
+    window.scrollTo(0,0)
+  }
+  function skip(id){
+    event.stopPropagation();
+    Dynajax('skip','s',function(obj,callbackData){
+       if(obj.status){
+          showNotification('top','right',"success",obj.message);
+          $(`[row-id='${id}']`).remove()
+      }
+    },{id:id},false,{ targetId:parseInt(id) },true);
+    event.cancelBubble=true
+  }
+if data.notifyLink
+  script.
+    function notify(id,_this){
+        var tmpStatus=_this.querySelector("input[type='checkbox']").checked
+        Dynajax('#{data.notifyLink}','l',setChecked,{t:_this,rc:tmpStatus},false,{ status:tmpStatus,id:#{ data.id && data.id!="table" ? data.id  :  "null" },targetId:parseInt(id)});
+        event.stopPropagation();
+    }    
+else
+  script.
+    function notify(id,_this){
+        event.stopPropagation();
+        var tmpStatus=_this.querySelector("input[type='checkbox']").checked
+        Dynajax('setNotify','l',setChecked,{t:_this,rc:tmpStatus},false,{ status:tmpStatus,typeId:#{  data.typeId ? JSON.stringify(data.typeId)  :  "null"  },targetId:parseInt(id)});
+    }
+if data.checker
+    script.
+      function checker(id,_this){
+          event.stopPropagation();
+          var tmpStatus=_this.querySelector("input[type='checkbox']").checked
+          Dynajax('checker','l',setChecked,{t:_this,rc:tmpStatus},false,{ status:tmpStatus,targetId:parseInt(id)});
+      }
+      

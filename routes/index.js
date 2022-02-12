@@ -71,6 +71,8 @@ async function dashboard(req,res){
     link:"/game/",
     title:"Ana Sayfa",
     orderBy:"date",
+    customTable:"dashboard",
+    customCheckbox:true
   },req,res)
   /*var obj={title:"Ana Sayfa"}
   obj.gamesCount=(await db.query("SELECT count(*) as c FROM coda.Games where deleted=0;"))[0].c
@@ -564,8 +566,13 @@ router.get('/user/:id/:page?', async function (req, res, next) {
 });
 
 async function tableGenerator(data,req,res){
-  
-  if(data.old){
+  if(data.customTable){
+    res.render(data.customTable, {
+      title: data.title,
+      data: data
+    });
+  }
+  else if(data.old){
     res.render('table yedek', {
       title: data.title,
       data: data

@@ -61,7 +61,7 @@ class Database {
         inner JOIN coda.Games as g on t.gameId=g.id 
         inner JOIN coda.Devices as d on t.deviceId=d.id
         inner JOIN coda.Countries as c on t.countrieId=c.id 
-        where  1=1  :srcTxt  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        where  1=1  :srcTxt  ORDER BY :orderBy ,rank  LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
         ,searchCol:[ {k:"id"},{k:"n"},{k:"device_text",q:"d"},{k:"countrie_text",q:"c"},{k:"date",t:"date",q:"t"},{k:"rank",q:"equal"} ] 
         ,orderBy:["id","n","device_text","countrie_text","rank","date"] 
         },
