@@ -57,6 +57,14 @@ class Database {
         ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"rdd",t:"date"} ] 
         ,orderBy:["id","n","dn","rdd","notify"] 
         },
+        top:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.id,g.n,d.device_text,c.countrie_text,t.rank,t.date FROM coda.Top_List as t  
+        inner JOIN coda.Games as g on t.gameId=g.id 
+        inner JOIN coda.Devices as d on t.deviceId=d.id
+        inner JOIN coda.Countries as c on t.countrieId=c.id 
+        where  1=1  :srcTxt  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        ,searchCol:[ {k:"id"},{k:"n"},{k:"device_text",q:"d"},{k:"countrie_text",q:"c"},{k:"date",t:"date",q:"t"},{k:"rank",q:"equal"} ] 
+        ,orderBy:["id","n","device_text","countrie_text","rank","date"] 
+        },
 
     }
     constructor() {

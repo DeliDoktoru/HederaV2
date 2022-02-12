@@ -156,13 +156,12 @@ block content
             pager+=`<div class="pageButton"><a onclick="data.current=${ parseInt(data.current+1) };refresh()" href="javascript:void(0)">»</a></div>`
           }
 
-
           $(".pager").html(pager)
-          
-
 
         }else{
-          $(".table>tbody").append(`<tr><td></td><td>Tabloda veri yok.</td></tr>`)
+          $(".table>tbody").append(`<div>Tabloda veri yok.</div>`)
+          $(".pager").html("")
+          $("#total").text("")
         }
         
       }catch(error){

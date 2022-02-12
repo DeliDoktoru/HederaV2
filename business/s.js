@@ -30,6 +30,7 @@ async function run(){
     try{
         checkCompanyGames(true);
         getVersionOfGame(null,true);
+
     }catch(error){
         console.log(error)
     }
@@ -102,7 +103,7 @@ async function insertMultipleGamesByAppStoreIds(arr=[]){
         await insertGameByUrlv3("https://apps.apple.com/app/id"+item)
     }
 }
-async function insertGameByUrlv3(url,userId){ 
+async function insertGameByUrlv3(url,userId,full_url){ 
     //appstore
     var uid=url;
     try {
@@ -120,10 +121,10 @@ async function insertGameByUrlv3(url,userId){
         if(userId){
             throw "Bu oyun ekli!";
         }else{
-            return false;
+            return checkGame[0].id;
         }
     }
-    var res=await getAppStoreGameByLink("https://apps.apple.com/app/id"+uid);
+    var res=await getAppStoreGameByLink( full_url || ("https://apps.apple.com/app/id"+uid)  );
     try {
         pre=res.d[0].attributes
         obj=res.d[0].attributes.platformAttributes.ios
@@ -137,7 +138,7 @@ async function insertGameByUrlv3(url,userId){
             rd:obj.versionHistory[0].releaseDate,//
             bundle_id: obj.bundleId,//
             description: obj.description,//
-            app_store_url:"https://apps.apple.com/app/id"+res.d[0].id,//
+            app_store_url:full_url || "https://apps.apple.com/app/id"+res.d[0].id,//
             version: obj.versionHistory[0].versionDisplay,//
             rdd: obj.versionHistory[0].releaseDate//
          }
@@ -225,7 +226,7 @@ async function insertGameByUrlv3(url,userId){
                 }
             }
         }
-        return true
+        return gameId
     } catch (error) {
         console.log(error)
         return false;
@@ -243,7 +244,7 @@ async function getVersionOfGame(gameI,endless=false){
         d=d.concat(game)
     }else{
         console.log("preparing new circle... (Version Checker) "+version_checker_counter)
-        d=d.concat(( await db.query("SELECT g.* FROM coda.Versions as v inner join coda.Games as g on v.gameId = g.id where v.deleted=0 and g.skip=0 and v.version_date > NOW()-INTERVAL 90 DAY  group by v.gameId  ;")   ))
+        d=d.concat(( await db.query("SELECT g.* FROM coda.Versions as v inner join coda.Games as g on v.gameId = g.id where  app_store_url is not null and v.deleted=0 and g.skip=0 and v.version_date > NOW()-INTERVAL 90 DAY  group by v.gameId  ;")   ))
         //d=d.concat((await db.selectAll("Games","ORDER BY id DESC")))
     }
     for (let item of d) {
@@ -384,6 +385,9 @@ async function getVersionRequestByLink(link){
     return a;
 }
 
+
+
+
 //-s stand alone
 if(process.argv[2]=="-s"){
     run()
@@ -396,11 +400,87 @@ if(process.argv[2]=="-c"){
 if(process.argv[2]=="-g"){
     insertGameById(process.argv[3])
 }
-
 async function paramC(){
-    //bu sayfa boş bırakılmıştır :)
-   console.log("nope")
+    var i=1
+    var date=new Date("2022/02/"+i)
+    var Devices=await db.selectAll("Devices")
+    var Countries=await db.selectAll("Countries")
+    for(i=1;i<=11;i++){
+        for(c of Countries){
+            console.log(c.countrie_text)
+            for(d of Devices){
+               await appStoreTopList(c,d,date)
+            }
+        }
+
+    }
+
 }
+async function appStoreTopList(c,d,date){
+    var res=await getSensorTowerData(c,d,date)
+    try {
+        date=new Date(date)
+        date.setHours(0,0,0,0);
+        for(item of res){
+            //free game
+            let f=item[0]
+            let gameId=await insertGameByUrlv3("https://apps.apple.com/app/id"+f.app_id,null,f.url)
+            var obj={  countrieId:c.id,deviceId:d.id,rank:f.rank,date:date }
+            let checkGame=(await db.selectQuery(obj,"Top_List") )
+            obj.gameId=gameId;//sorgudan sonra gameId ekledim
+            if ( checkGame && checkGame.length>0  ){
+                if(checkGame[0].gameId!=gameId){
+                    await db.update(obj,{id:checkGame.id},"Top_List");  
+                    console.log("updated date:"+obj.date +" rank:" +obj.rank) 
+                }
+                continue
+            }
+            obj.gameId=gameId;
+            await db.insert(obj,"Top_List")
+            console.log("inserted date:"+obj.date +" rank:" +obj.rank)
+        }
+    } catch (error) {
+        console.log(res)
+    console.log(error)
+    }
+   
+}
+async function getSensorTowerData(c,d,date){
+    let res
+    try {
+         res=await fetch("https://app.sensortower.com/api/ios/rankings/get_category_rankings?category=6014&country="+c.link+"&date="+encodeURIComponent(date.toISOString())+"&device="+d["device_text"]+"&limit=500&offset=0", {
+        "headers": {
+            "accept": "application/json, text/javascript, */*; q=0.01",
+            "accept-language": "tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7",
+            "if-none-match": "W/\"d858640d31c04d43eaaff66ab9336473\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+            "x-requested-with": "XMLHttpRequest"
+        },
+        "referrer": "https://app.sensortower.com/ios/rankings/top/iphone/us/games?date=2022-02-10",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "body": null,
+        "method": "GET",
+        "mode": "cors",
+        "credentials": "include"
+        });
+        res=JSON.parse(await res.text())
+        return res;
+    } catch (error) {
+        if(res.status==429){
+            console.log("too fast")
+        }
+        console.log(res)
+        console.log(error)
+    }
+    return false
+    
+}
+
+
+
+
 function removeEmoji(str){
     return str.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '');
 }

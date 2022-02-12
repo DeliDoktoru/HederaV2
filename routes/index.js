@@ -59,18 +59,30 @@ router.get('/test', async function (req, res, next) {
   
 });
 
-async function dashboard(res){
-  var obj={title:"Ana Sayfa"}
+async function dashboard(req,res){
+  await tableGenerator({
+    procedure:"top",
+    pp:true,
+    tableHead:["id","rank","n","device_text","countrie_text","date"],
+    turkce:["Id","Sıralama","Oyun adı","Cihaz","Ülke","Tarih"],
+    dateIndex:[6],
+    table:"/",
+    pageLink:"/dashboard/",
+    link:"/game/",
+    title:"Ana Sayfa",
+    orderBy:"date",
+  },req,res)
+  /*var obj={title:"Ana Sayfa"}
   obj.gamesCount=(await db.query("SELECT count(*) as c FROM coda.Games where deleted=0;"))[0].c
   obj.companyCount=(await db.query("SELECT count(*) as c FROM coda.Companys where deleted=0;"))[0].c
   obj.users=JSON.stringify(await db.query("SELECT username,navigate,lastview FROM coda.Users where navigate!=0 and deleted=0;"))
   obj.size=global.gameImagesSize
   obj.sizeDate=global.gameImagesSizeDate
   obj.games=JSON.stringify(await db.query(`  SELECT  g.id,g.n,GROUP_CONCAT(v.version_date) as ver FROM coda.Games as g inner join coda.Versions as v on v.gameId = g.id and g.skip=0 and v.deleted=0 and v.version_date > NOW()-INTERVAL 90 DAY where g.deleted=0 group by v.gameId HAVING COUNT(*) > 1 ORDER BY version_date DESC LIMIT 15; `))
-  res.render('dashboard', obj);
+  res.render('dashboard', obj);*/
 }
-router.get('/dashboard', async function (req, res, next) { dashboard(res) });
-router.get('/', async function (req, res, next) { dashboard(res) });
+router.get('/dashboard', async function (req, res, next) { dashboard(req,res) });
+router.get('/', async function (req, res, next) { dashboard(req,res) });
 
 router.get('/previewV2', async function (req, res, next) {
   res.render('preview', {
@@ -366,9 +378,9 @@ router.get('/company/:id/:page?', async function (req, res, next) {
     if (tmpNote && tmpNote.length > 0) {
       note = tmpNote[0].text
     }
-    var games = await  db.queryObject(`select g.id,g.n,g.rdd,GROUP_CONCAT(v.version_date) as ver  from coda.Games as g inner join coda.Versions as v on v.gameId = g.id and v.deleted=0 and g.companyId=:id   group by v.gameId HAVING COUNT(*) > 1 ORDER BY g.rdd DESC`,{id:id})
+    var games = await  db.queryObject(`select g.id,g.n,g.rdd,GROUP_CONCAT(v.version_date) as ver  from coda.Games as g inner join coda.Versions as v on v.gameId = g.id and v.deleted=0 and g.companyId=:id   group by v.gameId ORDER BY g.rdd DESC`,{id:id})
     res.render('company', {
-      title: data[0].text,
+      title: data[0]?.text,
       data: data[0],
       games: games,
       notify: notify,

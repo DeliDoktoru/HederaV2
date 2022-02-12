@@ -384,3 +384,6 @@ function showNotification(from, align,renk,text){
         }
     }
     /* #endregion */
+
+
+    
