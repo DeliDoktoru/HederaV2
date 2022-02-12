@@ -687,6 +687,25 @@ router.post('/checker',async function(req, res, next) {
   });
 
 });
+router.post('/top',async function(req, res, next) {
+  var data=req.body.ndata;
+  var text, status=0 ;
+  try {
+    var resultGames=await db.selectLikeWithColumn(["countrieId","deviceId","rank","date"],"Top_List",{gameId:data.targetId})
+    var resultGame=await db.selectLikeWithColumn(["n"],"Games",{id:data.targetId})
+    res.send({d:resultGames,n:resultGame[0].n,status:1});
+    return
+  } catch (error) {
+    console.log(error)
+    text=error
+  }
+  
+  res.send({
+    message: text,
+    status: status,
+  });
+
+});
 router.post('/skip',async function(req, res, next) {
   var data=req.body.ndata;
   var text, status=0 ;

@@ -4,11 +4,105 @@ block content
   .row
     .col-md-12
       .card
-        .card-header
-          h4.card-title 
         .card-body
-          .row
-            .col-md-12
-              .tab-content
-                canvas#chartTopGames
-  include pure-table.pug              
+          .col-md-12
+            .row
+              .col-md-2.p-0.mr-1    
+                select.border-info#countrie.custom-select
+                  each key,i in data.static.Countries
+                    if i==0
+                      option( value=key.id selected )=key.countrie_text
+                    else
+                      option( value=key.id  )=key.countrie_text
+              .col-md-2.p-0
+                select.border-info#device.custom-select
+                  each key,i in data.static.Devices
+                    if i==0
+                      option( value=key.id selected )=key.device_text
+                    else 
+                      option( value=key.id  )=key.device_text
+          .col-md-12
+            canvas#chartTopGames
+  include pure-table.pug    
+  script(src='/javascripts/chart.min.js'  type='text/javascript')
+  script.
+    if(!data.chart) data.chart={}
+    if(!data.chartHide) data.chartHide=[]
+    var ctxt = document.getElementById('chartTopGames').getContext("2d");
+    var m=new Date().getMonth()
+    var y=new Date().getFullYear()
+    var lables=[];
+    for(j=1;j<=daysInMonth(m+1,y);j++){
+      lables.push(  j+" "+months[m]  )
+    }
+    var max=200;
+    var min=0;
+    var chart=new Chart(ctxt, {
+        type: 'line',
+        data: {
+            labels: lables,
+            datasets: [], 
+        },
+        layout: {
+            padding: {
+                top: 10
+            }
+        },
+        options: {
+            spanGaps : true,
+            scales: {
+              y: {
+                reverse: true,
+                ticks: {
+                    stepSize: 1,
+                    }
+                },
+            },
+          responsive: true,
+        }
+    });
+    function customCheckboxRender(id){
+      return !data.chartHide.includes(id) &&  data.chart[id] ? true : false
+    }
+    function customCheckbox(id,_this){
+          event.stopPropagation();
+          var tmpStatus=_this.querySelector("input[type='checkbox']").checked
+          if(  !data.chart[id] ){
+            Dynajax('top','l',function(result,callbackData){
+              data.chart[callbackData.id]={data: result.d, name:result.n}
+              $(callbackData.t).find("input").prop('checked', !callbackData.rc);
+              refreshChart()
+            },{t:_this,rc:tmpStatus,id:id},false,{ status:tmpStatus,targetId:parseInt(id)});
+          }else{
+            var findHide=data.chartHide.indexOf(id)
+            if(findHide==-1) data.chartHide.push(id)
+            else data.chartHide.splice(findHide,1)
+            setTimeout(function(){$(_this).find("input").prop('checked', !tmpStatus) },100)
+            refreshChart()
+          }
+    }
+    function refreshChart(){
+      chart.data.datasets=[]
+      Object.keys(data.chart).forEach((x,i)=>{
+        if(!data.chartHide.includes(parseInt(x))){
+          var tmp=[]
+          for(item of data.chart[x].data){
+            let date=new Date(item.date)
+            if(date.getFullYear()==y && date.getMonth()==m && item.countrieId==$("#countrie").val() && item.deviceId==$("#countrie").val()){
+              tmp[date.getDate()]=item.rank
+            }
+          }
+          chart.data.datasets.push( { label:data.chart[x].name,data: tmp,borderColor:Colors2[i],backgroundColor: Colors2[i] , id:x})
+        }
+      })
+      var datasets=[]
+      chart.data.datasets.forEach(x=> x.data.forEach(y=> datasets.push(y) )  ) 
+      chart.options.scales.y.ticks.max = Math.max( ...datasets )+1;
+      chart.options.scales.y.ticks.min = Math.min( ...datasets )-1;
+      $("#chartTopGames").show()
+      chart.update();
+    }
+    $(function() {
+      $("#chartTopGames").hide()
+      $("#countrie,#countrie").change(function(){ refreshChart()})
+    });

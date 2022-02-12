@@ -384,6 +384,72 @@ function showNotification(from, align,renk,text){
         }
     }
     /* #endregion */
-
-
+    function daysInMonth (month, year) {
+        return new Date(year, month, 0).getDate();
+    }
+    function diffDay(s){
+        date1 = new Date(s);
+        date2 = new Date();;
+        diffTime = Math.abs(date2 - date1);
+        diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        console.log(diffDays)
+        return diffDays;
+   }
+   function convertTime(date){
+    var dateString = date; 
+    var dateParts = dateString.split("/");
+    var dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]); 
+    return dateObject.toISOString()
+  }
+  var monthsLong=["OCAK","ŞUBAT","MART","NİSAN","MAYIS","HAZİRAN","TEMMUZ","AĞUSTOS","EYLÜL","EKİM","KASIM","ARALIK"]
+  var months=["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"]
+   Colors2=[
+      "#FF0000",
+      "#FF8000",
+      "#FFFF00",
+      "#80112A",
+      "#00FF00",
+      "#00FF80",
+      "#00FFFF",
+      "#0080FF",
+      "#0000FF",
+      "#7F00FF",
+      "#FF00FF",
+      "#FF007F",
+      "#808080",
+      "#011030",
+      "#558082",
+      "#80AA80",
+      "#9f9c57",
+      "#ad1d45",
+      "#a3c3ff",
+      "#99228B",
+      "#E67E22",
+      "#1ABC9C",
+      "#2ECC71",
+      "#3498DB",
+      "#9B59B6",
+      "#16A085",
+      "#27AE60",
+      "#2980B9",
+      "#8E44AD",
+      "#2C3E50",
+      "#F1C40F",
+      "#E74C3C",
+      "#95A5A6",
+      "#F39C12",
+      "#D35400",
+      "#C0392B",
+      "#BDC3C7",
+      "#7F8C8D",
+    ]
+    function findPos(obj) {
+        var curtop = 0;
+        if (obj.offsetParent) {
+            do {
+                curtop += obj.offsetTop;
+            } while (obj = obj.offsetParent);
+        return [curtop];
+        }
+    }
     

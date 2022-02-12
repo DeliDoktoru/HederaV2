@@ -40,55 +40,7 @@ block content
                       td=tmp[2]+"-"+tmp[1]+"-"+tmp[0]    
   script(src='/javascripts/chart.min.js'  type='text/javascript')
   script.
-    function diffDay(s){
-         date1 = new Date(s);
-         date2 = new Date();;
-         diffTime = Math.abs(date2 - date1);
-         diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-         console.log(diffDays)
-         return diffDays;
-    }
     var games= !{ ( JSON.stringify(games) || 'null') }
-    Colors2=[
-      "#FF0000",
-      "#FF8000",
-      "#FFFF00",
-      "#80112A",
-      "#00FF00",
-      "#00FF80",
-      "#00FFFF",
-      "#0080FF",
-      "#0000FF",
-      "#7F00FF",
-      "#FF00FF",
-      "#FF007F",
-      "#808080",
-      "#011030",
-      "#558082",
-      "#80AA80",
-      "#9f9c57",
-      "#ad1d45",
-      "#a3c3ff",
-      "#99228B",
-      "#E67E22",
-      "#1ABC9C",
-      "#2ECC71",
-      "#3498DB",
-      "#9B59B6",
-      "#16A085",
-      "#27AE60",
-      "#2980B9",
-      "#8E44AD",
-      "#2C3E50",
-      "#F1C40F",
-      "#E74C3C",
-      "#95A5A6",
-      "#F39C12",
-      "#D35400",
-      "#C0392B",
-      "#BDC3C7",
-      "#7F8C8D",
-    ]
     var ctxg = document.getElementById('chartActivityGames').getContext("2d");
     var ctxv = document.getElementById('chartActivityVersions').getContext("2d");
     var gameCount=[0,0,0,0,0,0,0,0,0,0,0,0]
@@ -98,9 +50,7 @@ block content
        try{
           t=new Date(x.rdd)
           if(  diffDay(x.rdd)>335 ) return
-          console.log(x.rdd)
           gameCount[t.getMonth()]++
-          console.log(gameCount)
        }catch(error){
          console.log(error)
        }
@@ -120,8 +70,6 @@ block content
        })
        g.data=tmp
     })
-    console.log(games)
-    var months=["OCAK","ŞUBAT","MART","NİSAN","MAYIS","HAZİRAN","TEMMUZ","AĞUSTOS","EYLÜL","EKİM","KASIM","ARALIK"]
     months=months.slice(m+1,months.length).map(x=> x+"\n"+(y-1)).concat(months.slice(0,m+1).map(x=> x+"\n"+y))
     gameCount=gameCount.slice(m+1,gameCount.length).concat(gameCount.slice(0,m+1))
     games.forEach(g=>{

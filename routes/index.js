@@ -72,7 +72,8 @@ async function dashboard(req,res){
     title:"Ana Sayfa",
     orderBy:"date",
     customTable:"dashboard",
-    customCheckbox:true
+    customCheckbox:"Grafik",
+    static:{Devices:  await db.selectAll("Devices"),Countries:  await db.selectAll("Countries") }
   },req,res)
   /*var obj={title:"Ana Sayfa"}
   obj.gamesCount=(await db.query("SELECT count(*) as c FROM coda.Games where deleted=0;"))[0].c

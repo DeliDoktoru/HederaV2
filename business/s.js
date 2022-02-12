@@ -430,7 +430,8 @@ async function appStoreTopList(c,d,date){
             obj.gameId=gameId;//sorgudan sonra gameId ekledim
             if ( checkGame && checkGame.length>0  ){
                 if(checkGame[0].gameId!=gameId){
-                    await db.update(obj,{id:checkGame.id},"Top_List");  
+                    console.log(checkGame[0].gameId +" != "+gameId)
+                    await db.update(obj,{id:checkGame[0].id},"Top_List");  
                     console.log("updated date:"+obj.date +" rank:" +obj.rank) 
                 }
                 continue

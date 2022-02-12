@@ -31,6 +31,8 @@
                   th.text-center(col="skip") Takip kaldırma
                 if data.checker    
                   th.text-center(col="checker") Sistem yayıncı takibi
+                if data.customCheckbox!=undefined
+                  th.text-center=data.customCheckbox
               tr
                 each key,i in data.tableHead
                   th(col=data.tableHead[i]).col-searcher
@@ -107,6 +109,17 @@ script.
                   </td>`
               }
             }
+            if(data.customCheckbox!=undefined){
+              let check=customCheckboxRender(row.id)  
+              if( $("[row-id='"+row.id+"']").length==0 )
+              tdExtra+=`<td class="center" ${data.customCheckbox}  onclick="customCheckbox(${row.id},this)"> 
+                          <div class="form-check">
+                            <label class="form-check-label" for="cu${row.id}">
+                              <input class="form-check-input" id="cu${row.id}" type="checkbox" name="cb" onclick="event.stopPropagation();" ${check  ? "checked" : "" }><span class="form-check-sign"></span>
+                            </label>
+                          </div>
+                        </td>`
+            }
           let tr=`
               <tr class="tdata" row-id="${row.id}" onclick="${(data.link==undefined?"": "window.open('"+data.link+row.id+"', '_blank');")}">
                   ${data.tableHead.map((key,index)=>{
@@ -162,12 +175,6 @@ script.
     }catch(error){
       console.log(error)
     }
-  }
-  function convertTime(date){
-    var dateString = date; 
-    var dateParts = dateString.split("/");
-    var dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]); 
-    return dateObject.toISOString()
   }
   $(function() {
     
@@ -240,7 +247,8 @@ script.
     var postData={ current:(data.current-1)*16,orderBy:data.orderBy,orderType:data.orderType,srcTxt:data.srcTxt }
     Object.assign(postData, data.sqlData);
     Dynajax('table/#{data.procedure}','x',table,null,false,postData);
-    window.scrollTo(0,0)
+    window.scroll(0,findPos(document.querySelector(".table")));
+    //window.scrollTo(0,0)
   }
   function skip(id){
     event.stopPropagation();
