@@ -402,25 +402,31 @@ if(process.argv[2]=="-g"){
 }
 async function paramC(){
     var i=1
-    var date=new Date("2022/02/"+i)
     var Devices=await db.selectAll("Devices")
     var Countries=await db.selectAll("Countries")
-    for(i=1;i<=11;i++){
+    for(i=1;i<=13;i++){
+        var date=convertTime(i+"/02/2022")
         for(c of Countries){
-            console.log(c.countrie_text)
+            //console.log(c.countrie_text)
             for(d of Devices){
-               await appStoreTopList(c,d,date)
+                await appStoreTopList(c,d,date)
             }
         }
 
     }
 
 }
+function convertTime(date){
+    var dateString = date; 
+    var dateParts = dateString.split("/");
+    var dateObject = new Date(+dateParts[2], dateParts[1]-1, +dateParts[0]); 
+    dateObject.setHours(3,0,0,0);
+    return dateObject
+}
 async function appStoreTopList(c,d,date){
     var res=await getSensorTowerData(c,d,date)
+    date.setHours(0,0,0,0);
     try {
-        date=new Date(date)
-        date.setHours(0,0,0,0);
         for(item of res){
             //free game
             let f=item[0]
@@ -433,7 +439,7 @@ async function appStoreTopList(c,d,date){
                     console.log(checkGame[0].gameId +" != "+gameId)
                     await db.update(obj,{id:checkGame[0].id},"Top_List");  
                     console.log("updated date:"+obj.date +" rank:" +obj.rank) 
-                }
+                }else console.log("duplicate")
                 continue
             }
             obj.gameId=gameId;
@@ -441,8 +447,7 @@ async function appStoreTopList(c,d,date){
             console.log("inserted date:"+obj.date +" rank:" +obj.rank)
         }
     } catch (error) {
-        console.log(res)
-    console.log(error)
+        console.log(error)
     }
    
 }
