@@ -63,10 +63,12 @@ async function dashboard(req,res){
   await tableGenerator({
     procedure:"top",
     pp:true,
-    tableHead:["id","rank","n","device_text","countrie_text","date"],
+    tableHead:["id","rank","n","id","id","date"],
     turkce:["Id","Sıralama","Oyun adı","Cihaz","Ülke","Tarih"],
     dateIndex:[6],
+    soloDateIndex:[6],
     table:"/",
+    special:[{k:"Devices",i:"4",c:"device_text",q:"d",t:"select"},{k:"Countries",i:"5",q:"c",c:"countrie_text",t:"select"}],
     pageLink:"/dashboard/",
     link:"/game/",
     title:"Ana Sayfa",

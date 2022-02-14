@@ -399,6 +399,7 @@ function showNotification(from, align,renk,text){
     var dateString = date; 
     var dateParts = dateString.split("/");
     var dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]); 
+    dateObject.setHours(3,0,0,0);
     return dateObject.toISOString()
   }
   var monthsLong=["OCAK","ŞUBAT","MART","NİSAN","MAYIS","HAZİRAN","TEMMUZ","AĞUSTOS","EYLÜL","EKİM","KASIM","ARALIK"]

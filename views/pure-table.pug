@@ -2,8 +2,9 @@
   if data.search 
     .col-md-8 
     .col-md-4 
-      .input-group.no-border#search-box
-        input.form-control(type='text' value='' placeholder='Arama...')
+      -if(! data.searchCol) data.searchCol="text"
+      .input-group.no-border#search-box.col-searcher(col=data.searchCol)
+        input.form-control(type='text' value='' placeholder='Arama...' )
         .input-group-append
           .input-group-text
             i.nc-icon.nc-zoom-split
@@ -15,7 +16,7 @@
             thead
               tr
                 each key,i in data.tableHead
-                  if key=="id" 
+                  if key=="id" && i==0 
                     th(col="id") #
                       if !data.orderBy
                         i.fa.fa-arrow-up
@@ -34,14 +35,29 @@
                 if data.customCheckbox!=undefined
                   th.text-center=data.customCheckbox
               tr
+                -if(!data.dateIndex) data.dateIndex=[]
+                -if(!data.soloDateIndex) data.soloDateIndex=[]
+                -if(!data.special) data.special=[]
                 each key,i in data.tableHead
-                  th(col=data.tableHead[i]).col-searcher
-                    -if(!data.dateIndex) data.dateIndex=[]
-                    if data.dateIndex.some(dt=>dt-1==i  )
-                      .input-group.no-border
-                        input.form-control.datepicker(type='text' value='' extra="min" value-type="date" placeholder="Başlangıç tarihi")
-                      .input-group.no-border
-                        input.form-control.datepicker(type='text' value='' extra="max" value-type="date" placeholder="Bitiş tarihi")
+                  -var special=data.special.find(x=> x.i-1==i)
+                  th(col=data.tableHead[i] table=(special && special.q) ).col-searcher                    
+                    if data.dateIndex.includes(i+1)
+                      if data.soloDateIndex.includes(i+1)
+                       .input-group.no-border
+                          input.form-control.datepicker(type='text' value='' value-type="date" placeholder="Tarih seçiniz")
+                      else
+                        .input-group.no-border
+                          input.form-control.datepicker(type='text' value='' extra="min" value-type="date" placeholder="Başlangıç tarihi")
+                        .input-group.no-border
+                          input.form-control.datepicker(type='text' value='' extra="max" value-type="date" placeholder="Bitiş tarihi")
+                    else if special && special.t=="select"
+                      select.border-secondary.custom-select.mb-2
+                        option(value="") Hepsi
+                        each s in data.static[special.k]
+                          if s.id==special.d
+                            option(value=s.id selected)=s[special.c]
+                          else
+                            option(value=s.id)=s[special.c] 
                     else   
                       .input-group.no-border
                         input.form-control(type='text' value='' placeholder=data.turkce[i] +" ara")
@@ -71,7 +87,7 @@ script.
   data.orderType="D"
   data.orderBy=data.orderBy || "id"
   data.current=1
-  data.srcTxt={}
+  data.srcTxt=[]
   function table(result){
     try{
       $(".table>tbody").html("");
@@ -131,7 +147,9 @@ script.
                     }else if(data.pp && index==0 && data.link){
                       td=`<div class="img-container"><img src="/games/${row.id}/0.jpg"></div>`
                     }else{
-                      td=row[key]
+                      let special=data.special.find(x=> x.i-1==index)
+                      if(special && special.c) td=row[special.c]
+                      else td=row[key]
                     }
                     return "<td>"+ td +"</td>"
                   }).join("")}   
@@ -151,19 +169,19 @@ script.
         var i = 3,j=1; 
         while (i>0){
           if (data.current-i > 0){
-            pager+=`<div class="pageButton"><a onclick="data.current=${ parseInt(data.current-i) };refresh()" href="javascript:void(0)">${data.current-i}</a></div>`
+            pager+=`<div class="pageButton"><a onclick="refresh(${ parseInt(data.current-i) })" href="javascript:void(0)">${data.current-i}</a></div>`
           }
           i--
         }
         pager+=`<div class="pageButton"><a class="active" href="javascript:void(0)">${data.current}</a></div>`
         while (j<4){
           if (data.current+j <= data.max){
-            pager+=`<div class="pageButton"><a onclick="data.current=${ parseInt(data.current+j) };refresh()" href="javascript:void(0)">${data.current+j}</a></div>`
+            pager+=`<div class="pageButton"><a onclick="refresh(${ parseInt(data.current+j) })" href="javascript:void(0)">${data.current+j}</a></div>`
           }
           j++
         }
         if(data.current<data.max){
-          pager+=`<div class="pageButton"><a onclick="data.current=${ parseInt(data.current+1) };refresh()" href="javascript:void(0)">»</a></div>`
+          pager+=`<div class="pageButton"><a onclick="refresh(${ parseInt(data.current+1) })" href="javascript:void(0)">»</a></div>`
         }
         $(".pager").html(pager)
       }else{
@@ -193,62 +211,55 @@ script.
     })
     $("thead .col-searcher input.datepicker").change(function(){
       if($(this).val().length==10){
-        refresh(1,$(this).closest( ".col-searcher" ).attr("col"),$(this).val(),$(this).attr("extra"),$(this).attr("value-type"))
+        refresh(1,this)
       }
+    })
+    $("thead .col-searcher select,input[type='checkbox']").change(function(){
+      refresh(1,this)
     })
     $("thead .col-searcher input").keyup(function(e){
         if(e.keyCode == 13)
         { 
-          refresh(1,$(this).closest( ".col-searcher" ).attr("col"),$(this).val(),$(this).attr("extra"),$(this).attr("value-type"))
+          refresh(1,this)
         }
     });
-    $("thead .col-searcher input[type='checkbox']").change(function() {
-      if(this.checked) {
-        refresh(1,$(this).closest( ".col-searcher" ).attr("col"),1)
-      }else{
-        refresh(1,$(this).closest( ".col-searcher" ).attr("col"))
-      }
-    });    
-     
-    $("#search-box>input").val((new URLSearchParams(window.location.search)).get('search'))
     $('#search-box>input').keyup(function(e){
         if(e.keyCode == 13)
         { 
-            if(! data.searchCol) data.searchCol="text"
-            data.srcTxt[data.searchCol]=$(this).val()
-            refresh(1)
+            refresh(1,this)
         }
     });
   });
-  function refresh(c,k,v,e,t){
+  function refresh(c,_this){
+    let k,v,e,t,q;
+    if(_this){
+      k=$(_this).closest( ".col-searcher" ).attr("col");
+      if($(_this).attr("type")=="checkbox"){
+        if(_this.checked) v=1
+      }else v=$(_this).val()
+      e=$(_this).attr("extra")
+      t=$(_this).attr("value-type")
+      q=$(_this).closest( ".col-searcher" ).attr("table")
+    }
     if(c) {
       data.current=c;
     }
     if(k){
+      let indx=data.srcTxt.findIndex(x=> x.k==k && x.q==q && x.e==e)
+      if(indx>-1) data.srcTxt.splice(indx,1)
       if(v && v!="") {
         if(t){
           if(t=="date"){
             v=convertTime(v)
           }
         }
-        if(e){
-          if(!data.srcTxt[k]) data.srcTxt[k]={}
-          data.srcTxt[k][e]=v
-        }else data.srcTxt[k]=v
-      }
-      else {
-        if(e && data.srcTxt[k]) {
-          delete data.srcTxt[k][e]
-          if(Object.keys(data.srcTxt[k]).length==0) delete data.srcTxt[k]
-        }
-        else delete data.srcTxt[k]
+        data.srcTxt.push({k:k,v:v,e:e,q,q})
       }
     }
     var postData={ current:(data.current-1)*16,orderBy:data.orderBy,orderType:data.orderType,srcTxt:data.srcTxt }
     Object.assign(postData, data.sqlData);
     Dynajax('table/#{data.procedure}','x',table,null,false,postData);
     window.scroll(0,findPos(document.querySelector(".table")));
-    //window.scrollTo(0,0)
   }
   function skip(id){
     event.stopPropagation();

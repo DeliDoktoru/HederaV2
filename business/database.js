@@ -62,7 +62,7 @@ class Database {
         inner JOIN coda.Devices as d on t.deviceId=d.id
         inner JOIN coda.Countries as c on t.countrieId=c.id 
         where  1=1  :srcTxt  ORDER BY :orderBy ,rank  LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
-        ,searchCol:[ {k:"id"},{k:"n"},{k:"device_text",q:"d"},{k:"countrie_text",q:"c"},{k:"date",t:"date",q:"t"},{k:"rank",t:"equal",q:"t"} ] 
+        ,searchCol:[ {k:"id"},{k:"n"},{k:"id",q:"d",t:"equal"},{k:"id",q:"c",t:"equal"},{k:"date",t:"equal",q:"t"},{k:"rank",t:"equal",q:"t"} ] 
         ,orderBy:["id","n","device_text","countrie_text","rank","date"] 
         },
 
@@ -88,18 +88,25 @@ class Database {
         }
         if(! selectedProcedure) throw "Procedure not found!"
         if(! selectedProcedure.sql) throw "Sql not found!"
+        
         //search
         if(values.srcTxt ){
             try {
                 var tmp="";
-                Object.keys(values.srcTxt).forEach(x=> {
+                for(let x of values.srcTxt ){
                     try {
-                        if(values.srcTxt[x] && values.srcTxt[x]!=""){
-                            let f=selectedProcedure.searchCol.find(y=> y.k==x )
+                        if(x.v && x.v!=""){
+                            let f=selectedProcedure.searchCol.find(y=> {
+                                if(y.k==x.k){
+                                    if(x.q) {
+                                        if(x.q==y.q) return true
+                                    } 
+                                    else return true
+                                }
+                            })
                             if(!f){
-                                if( "notify"==x) f={ k:"id",t:"check",q:"n" } 
+                                if( "notify"==x.k) f={ k:"id",t:"check",q:"n" } 
                                 else{
-                                    delete values.srcTxt[x];
                                     return
                                 }
                             }
@@ -110,42 +117,35 @@ class Database {
                             };
                             switch (f.t) {
                                 case "text":
-                                    tmp+=` and ${f.q}.${f.k} like `+ this.pool.escape(`%${values.srcTxt[x]}%`) +" "
+                                    tmp+=` and ${f.q}.${f.k} like `+ this.pool.escape(`%${x.v}%`) +" "
                                     break;
                                 case "equal":
-                                    tmp+=` and ${f.q}.${f.k} = `+ this.pool.escape(`${values.srcTxt[x]}`) +" "
+                                    tmp+=` and ${f.q}.${f.k} = `+ this.pool.escape(`${x.v}`) +" "
                                     break;
                                 case "check":
                                     tmp+=` and ${f.q}.${f.k} is not null` +" "
                                     break;    
                                 case "date":
-                                    if(values.srcTxt[x].max)
-                                    tmp+=` and ${f.q}.${f.k} < ${ this.pool.escape(new Date(values.srcTxt[x].max).toISOString() )} ` +" "
-                                    if(values.srcTxt[x].min)
-                                    tmp+=` and ${f.q}.${f.k} > ${ this.pool.escape(new Date(values.srcTxt[x].min).toISOString() )} ` +" "
+                                    if(x.e=="max")
+                                    tmp+=` and ${f.q}.${f.k} < ${ this.pool.escape( x.v )} ` +" "
+                                    if(x.e=="min")
+                                    tmp+=` and ${f.q}.${f.k} > ${ this.pool.escape(x.v )} ` +" "
                                     break;     
                                 default:
                                     break;
                             }
                         }
-                        delete values.srcTxt[x];
                     } catch (error) {
                         console.log(error)
-                        delete values.srcTxt[x];
                     }
-                })
+                }
                 if(tmp!=""){
                     selectedProcedure.sql=selectedProcedure.sql.replace(":srcTxt",tmp)
-                    delete values.srcTxt;
-                }else{
-                    delete values.srcTxt;
                 }
             } catch (error) {
                 console.log(error)
-                delete values.srcTxt;
                 throw "hata"
             }
-        }else{
             delete values.srcTxt;
         }
         //orderby
