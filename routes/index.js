@@ -77,14 +77,6 @@ async function dashboard(req,res){
     customCheckbox:"Grafik",
     static:{Devices:  await db.selectAll("Devices"),Countries:  await db.selectAll("Countries") }
   },req,res)
-  /*var obj={title:"Ana Sayfa"}
-  obj.gamesCount=(await db.query("SELECT count(*) as c FROM coda.Games where deleted=0;"))[0].c
-  obj.companyCount=(await db.query("SELECT count(*) as c FROM coda.Companys where deleted=0;"))[0].c
-  obj.users=JSON.stringify(await db.query("SELECT username,navigate,lastview FROM coda.Users where navigate!=0 and deleted=0;"))
-  obj.size=global.gameImagesSize
-  obj.sizeDate=global.gameImagesSizeDate
-  obj.games=JSON.stringify(await db.query(`  SELECT  g.id,g.n,GROUP_CONCAT(v.version_date) as ver FROM coda.Games as g inner join coda.Versions as v on v.gameId = g.id and g.skip=0 and v.deleted=0 and v.version_date > NOW()-INTERVAL 90 DAY where g.deleted=0 group by v.gameId HAVING COUNT(*) > 1 ORDER BY version_date DESC LIMIT 15; `))
-  res.render('dashboard', obj);*/
 }
 router.get('/dashboard', async function (req, res, next) { dashboard(req,res) });
 router.get('/', async function (req, res, next) { dashboard(req,res) });
@@ -122,6 +114,35 @@ router.get('/index/:page?', async function (req, res, next) {
     link:"/game/",
     title:"Son Çıkan Oyunlar"
   },req,res)
+ 
+});
+router.get('/linkedin/:id/:page?', async function (req, res, next) {
+  let id = req.params.id
+  if (id == "table") {
+    await tableGenerator({
+      procedure:"linkedin_company",
+      checkbox:true,
+      tableHead:["id","name"],
+      turkce:["Id","Şirket adı"],
+      typeId:[4],
+      table:"/",
+      link:"/linkedin/",
+      title:"Linkedin Şirket Takibi"
+    },req,res)
+  }else{
+    var company = await db.selectQuery({
+      id: id
+    }, "Linkedin_Company")
+    await tableGenerator({
+      procedure:"linkedin_user",
+      tableHead:["id","username"],
+      turkce:["Id","İsim-Soyisim"],
+      pageLink:"/linkedin/",
+      title:"Şirket Çalışanları ( "+company[0]?.name +" )",
+      sqlData:{ id:id},
+    },req,res)
+  }
+  
  
 });
 router.get('/exit', async function (req, res, next) {
@@ -249,7 +270,7 @@ router.get('/group/:id/:page?', async function (req, res, next) {
       notifyLink:"authority_group",
       table:id+"/",
       pageLink:"/group/",
-      title: "Grup ( " + group[0].text + " )",
+      title: "Grup ( " + group[0]?.text + " )",
       sqlData:{ id:id},
     },req,res)
   }

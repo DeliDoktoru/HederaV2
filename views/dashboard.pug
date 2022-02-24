@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  #top
+  #top(style="display:none")
     .row
       .col-md-12
         .card
@@ -104,6 +104,6 @@ block content
       chart.update();
     }
     $(function() {
-      $("#top").hide()
+      //$("#top").hide()
       $("#countrie,#countrie").change(function(){ refreshChart()})
     });

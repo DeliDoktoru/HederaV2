@@ -2,12 +2,12 @@ const md5 = require('md5');
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
+var cors=require('cors');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var ajaxRouter = require('./routes/ajax');
 var session = require('express-session')
-
 const db= require('./business/database');
 var MySQLStore = require('express-mysql-session')(session);
 const options={
@@ -49,9 +49,10 @@ function imgSize(){
 
 
 var app = express();
-
+app.use(cors())
 app.use(express.json({limit: '200mb'}));
 app.use(express.urlencoded({limit: '200mb', extended: false}));
+
 //app.use(express.json());
 //app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -62,7 +63,7 @@ var accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {
 
 app.use(logger(function (tokens, req, res) {
   bodyBlocker=false
-  if(req.url.search("/preview") != -1 || req.url.search("/prototype") != -1 ) 
+  if(req.url.search("/linkedin") != -1 ||  req.url.search("/preview") != -1 || req.url.search("/prototype") != -1 ) 
   {
     bodyBlocker=true
   }
@@ -85,7 +86,7 @@ app.use(logger(function (tokens, req, res) {
 }));
 app.use(logger(function (tokens, req, res) {
   bodyBlocker=false
-  if(req.url.search("/preview") != -1 || req.url.search("/prototype") != -1 ) 
+  if(req.url.search("/linkedin") != -1 || req.url.search("/preview") != -1 || req.url.search("/prototype") != -1 ) 
   {
     bodyBlocker=true
   }
@@ -149,7 +150,7 @@ app.use(async function (req, res, next) {
     
   }
  
-  if ( req.url.indexOf("/login")==0 || req.url.indexOf("/ajax/login")==0 || req.url.indexOf("/register")==0 || req.url.indexOf("/ajax/register")==0 ) { 
+  if ( req.url.indexOf("/login")==0 || req.url.indexOf("/ajax/linkedin")==0 || req.url.indexOf("/ajax/login")==0 || req.url.indexOf("/register")==0 || req.url.indexOf("/ajax/register")==0 ) { 
     if(req.session.user && req.session.user.approved){
       res.redirect('/dashboard');
     }

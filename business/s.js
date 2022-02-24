@@ -394,17 +394,16 @@ if(process.argv[2]=="-s"){
 }
 
 if(process.argv[2]=="-c"){
-    paramC()
+    paramC(process.argv[3])
 }
 
 if(process.argv[2]=="-g"){
     insertGameById(process.argv[3])
 }
-async function paramC(){
-    var i=1
+async function paramC(day){
     var Devices=await db.selectAll("Devices")
     var Countries=await db.selectAll("Countries")
-    for(i=1;i<=13;i++){
+    for(i=day;i<=day;i++){
         var date=convertTime(i+"/02/2022")
         for(c of Countries){
             //console.log(c.countrie_text)

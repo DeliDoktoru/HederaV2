@@ -911,5 +911,56 @@ function savePrototype(name,data){
 
   return str;
 };
+router.post('/linkedin',async function(req, res, next) {
+  var data=req.body;
+  var text="", status=0 ;
+  switch (data.method) {
+    case "check":
+      var checkCompany=await db.selectQuery({  id :  data.id },"Linkedin_Company") 
+      if ( checkCompany && checkCompany.length>0  ){
+        var count=(await db.queryObject("select count(*) as count from coda.Linkedin_User where companyId=:id and deleted=0",{id:data.id}))[0].count
+        if(count!=data.count){ text="eşit değil";status=1;}else{text="eşit"}
+      }
+      else{text="hiç verisi yok";status=1;}
+      break;
+    case "update":
+      var checkCompany=await db.selectQuery({  id :  data.id },"Linkedin_Company") 
+      let gate=true;
+      if ( checkCompany && checkCompany.length==0  ){
+        await db.insert({ id:data.id,name:data.companyName,link:"https://www.linkedin.com/company/"+data.id  },"Linkedin_Company")
+        for(item of data.cache){
+          if((await db.selectQuery({  urn :  item.urn, companyId:item.companyId},"Linkedin_User")).length==0)
+          await db.insert({ username:item.name,link:item.link,urn:item.urn,companyId:item.companyId  },"Linkedin_User")
+        }
+        gate=false;
+      }
+      for(item of data.cache){
+        if((await db.selectQuery({  urn :  item.urn, companyId:item.companyId},"Linkedin_User")).length==0)
+        await db.insert({ username:item.name,link:item.link,urn:item.urn,companyId:item.companyId  },"Linkedin_User")
+      }
+      if(gate){
+        let fired=await db.selectIn("urn",data.cache.map(x=>x.urn),"Linkedin_User",true," AND companyId="+checkCompany[0].id)
+        if(fired.length>0){
+          var re=await db.selectQuery({targetId:data.id ,typeId:4 },"Notification_Request")
+          if ( re && re.length>0  ){
+            for(item of fired){
+                for (ri of re) {
+                    await db.insert({date:new Date().toISOString(),userId:ri.userId,text:`${item.username} işten ayrıldı ( Firma : ${checkCompany[0].name}) <a class="btn" href="${item.link}"><i class="fas fa-link"></i></a>`},"Notifications");
+                }
+            }
+          }
+          await db.setSilindi({id:item.id},"Linkedin_User")
+        }
+        
+      }
+    break;  
+    default:
+      break;
+  }
+  res.send({
+    message: text,
+    status: status,
+  });
 
+});
 module.exports = router;

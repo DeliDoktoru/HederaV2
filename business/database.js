@@ -1,7 +1,7 @@
 const mysql = require( 'mysql' );
 class Database {
     procedures={
-        index:{ sql:`SELECT SQL_CALC_FOUND_ROWS v.version_count,g.* FROM coda.Games as g left join (select COUNT(*) as version_count,gameId from coda.Versions where gameId is not null and deleted=0 group by gameId) as v on g.id=v.gameId  where ( v.version_count=1 or v.version_count is null ) and NOW()  > g.rdd and g.rdd > NOW()-INTERVAL 30 DAY and g.deleted=0 :srcTxt  order by :orderBy LIMIT :current,30; SELECT FOUND_ROWS() AS max;`
+        index:{ sql: `SELECT SQL_CALC_FOUND_ROWS v.version_count,g.* FROM coda.Games as g left join (select COUNT(*) as version_count,gameId from coda.Versions where gameId is not null and deleted=0 group by gameId) as v on g.id=v.gameId  where ( v.version_count=1 or v.version_count is null ) and NOW()  > g.rdd and g.rdd > NOW()-INTERVAL 30 DAY and g.deleted=0 :srcTxt  order by :orderBy LIMIT :current,30; SELECT FOUND_ROWS() AS max;`
                ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"rdd",t:"date"} ] 
                ,orderBy:["id","n","dn","rdd"] 
             },
@@ -25,7 +25,7 @@ class Database {
             ,searchCol:[ {k:"id"},{k:"text"} ] 
             ,orderBy:["id", "text","notify"] 
         },
-        system:{ sql:`SELECT SQL_CALC_FOUND_ROWS v.version_date_max,v.version_date_min,g.*,!isnull(n.id) as notify FROM coda.Games as g inner join (SELECT count(*) as version_count,MAX(version_date) as version_date_max,MIN(version_date) as version_date_min,gameId FROM coda.Versions where deleted=0 group by gameId) as v on v.version_count>1 and v.version_date_max > NOW()-INTERVAL 90 DAY and g.skip=0  and v.gameId = g.id  LEFT join coda.Notification_Request as n on n.targetId=g.id and n.typeId=2 and n.deleted=0 and n.userId=:userId where g.deleted=0 :srcTxt ORDER BY :orderBy LIMIT :current,16;SELECT FOUND_ROWS() AS max;`
+        system:{ sql:  `SELECT SQL_CALC_FOUND_ROWS v.version_date_max,v.version_date_min,g.*,!isnull(n.id) as notify FROM coda.Games as g inner join coda.Companys as c on c.id=g.companyId and c.hidden=0  inner join (SELECT count(*) as version_count,MAX(version_date) as version_date_max,MIN(version_date) as version_date_min,gameId FROM coda.Versions where deleted=0 group by gameId) as v on v.version_count>1 and v.version_date_max > NOW()-INTERVAL 90 DAY and g.skip=0  and v.gameId = g.id  LEFT join coda.Notification_Request as n on n.targetId=g.id and n.typeId=2 and n.deleted=0 and n.userId=:userId where g.deleted=0 :srcTxt ORDER BY :orderBy LIMIT :current,16;SELECT FOUND_ROWS() AS max;` //`SELECT SQL_CALC_FOUND_ROWS v.version_date_max,v.version_date_min,g.*,!isnull(n.id) as notify FROM coda.Games as g inner join (SELECT count(*) as version_count,MAX(version_date) as version_date_max,MIN(version_date) as version_date_min,gameId FROM coda.Versions where deleted=0 group by gameId) as v on v.version_count>1 and v.version_date_max > NOW()-INTERVAL 90 DAY and g.skip=0  and v.gameId = g.id  LEFT join coda.Notification_Request as n on n.targetId=g.id and n.typeId=2 and n.deleted=0 and n.userId=:userId where g.deleted=0 :srcTxt ORDER BY :orderBy LIMIT :current,16;SELECT FOUND_ROWS() AS max;`
             ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"version_date_max",t:"date",q:"v"},{k:"version_date_min",t:"date",q:"v"} ] 
             ,orderBy:["id", "n", "dn", "version_date_max","version_date_min","notify"] 
         },
@@ -65,6 +65,14 @@ class Database {
         ,searchCol:[ {k:"id"},{k:"n"},{k:"id",q:"d",t:"equal"},{k:"id",q:"c",t:"equal"},{k:"date",t:"equal",q:"t"},{k:"rank",t:"equal",q:"t"} ] 
         ,orderBy:["id","n","device_text","countrie_text","rank","date"] 
         },
+        linkedin_company:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify FROM coda.Linkedin_Company as g  LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=4 and n.userId=:userId  where 1=1 and g.deleted=0 :srcTxt   GROUP BY g.id  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+            ,searchCol:[ {k:"id"},{k:"name"} ] 
+            ,orderBy:["id","name","notify"] 
+        }, 
+        linkedin_user:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.* FROM coda.Linkedin_User as g  where 1=1 and g.deleted=0 and companyId=:id :srcTxt   GROUP BY g.id  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+            ,searchCol:[ {k:"id"},{k:"username"} ] 
+            ,orderBy:["id","username"] 
+        },   
 
     }
     constructor() {
@@ -401,7 +409,7 @@ class Database {
         var concat= arr1.concat(arr2);
         return this.query(query,Object.keys(concat).map(y=> concat[y]));
     }
-    async selectIn(colName,data=[],tableName,extra="",countRow=false,databaseName=this.databaseName){
+    async selectIn(colName,data=[],tableName,not=false,extra="",countRow=false,databaseName=this.databaseName){
         //data [1,2,3,4] şeklinde olmalı
         //var a=await new db().selectIn("id",[1,2],"sayfalar");
         if(!tableName || tableName==""){
@@ -413,8 +421,12 @@ class Database {
         if(!colName){
             throw "kolonadibulanamadi";
         }
+        let _not=""
+        if(not){
+            _not="NOT"
+        }
         var query="";
-        query=selectInConverter(tableName,databaseName,colName,extra,countRow);
+        query=selectInConverter(tableName,databaseName,colName,extra,countRow,_not);
         if(query==""){
             throw "sorgubulunamadi";
         }
@@ -459,8 +471,8 @@ function selectWithColumnConverter(_tableName,_databaseName,_colNameS,_where,_mo
 function updateConverter(_tableName,_databaseName,_object,_where,_mode){
     return `UPDATE ${_databaseName}.${_tableName} SET ${Object.keys(_object).map(x=> x+"= ? ").toString()} WHERE ${Object.keys(_where).map(x=> x+"= ? ").join(_mode+" ")}`;
 }
-function selectInConverter(_tableName,_databaseName,_colName,_extra,_countRow){
-    return `SELECT ${ _countRow ? "SQL_CALC_FOUND_ROWS" : "" } * FROM ${_databaseName}.${_tableName} WHERE ${_colName} IN (?) AND deleted=0 ${_extra} ; ${ _countRow ? "SELECT FOUND_ROWS() AS max;" : "" }`;
+function selectInConverter(_tableName,_databaseName,_colName,_extra,_countRow,_not){
+    return `SELECT ${ _countRow ? "SQL_CALC_FOUND_ROWS" : "" } * FROM ${_databaseName}.${_tableName} WHERE ${_colName} ${_not} IN (?) AND deleted=0 ${_extra} ; ${ _countRow ? "SELECT FOUND_ROWS() AS max;" : "" }`;
 }
 function setSilindiConverter(_tableName,_databaseName,_where,_mode){
     return `UPDATE ${_databaseName}.${_tableName} SET deleted=1 WHERE ${Object.keys(_where).map(x=> x+"= ? ").join(_mode+" ")}`;
