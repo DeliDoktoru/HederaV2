@@ -18,12 +18,10 @@
                 each key,i in data.tableHead
                   if key=="id" && i==0 
                     th(col="id") #
-                      if !data.orderBy
-                        i.fa.fa-arrow-up
                   else 
                     th(col=data.tableHead[i])=data.turkce[i]
                       if data.orderBy==data.tableHead[i]
-                        i.fa.fa-arrow-up
+                        i.fa.fa-arrow-down
                 if data.customNotifyText
                   t.text-center(col="notify")=data.customNotifyText    
                 else if data.checkbox    
@@ -85,9 +83,9 @@
 script. 
   var data=!{JSON.stringify(data)}
   data.orderType="D"
-  data.orderBy=data.orderBy || "id"
+  data.orderBy=data.orderBy 
   data.current=1
-  data.srcTxt=[]
+  if(!data.srcTxt) data.srcTxt=[]
   function table(result){
     try{
       $(".table>tbody").html("");
@@ -158,7 +156,10 @@ script.
           $(".table>tbody").append(tr)
         })
         //pager
-        var max = result.d[1][0].max;
+        var max ; 
+        if(result.d[1][0].max)
+        max = result.d[1][0].max;
+        else max=99999
         $("#total").text(`Toplam Sayfa Sayısı:${Math.ceil(max / 16)}`)
         data.max = max < 16 ? 1 : Math.ceil(max / 16);
         var pager="";
@@ -270,6 +271,16 @@ script.
       }
     },{id:id},false,{ targetId:parseInt(id) },true);
     event.cancelBubble=true
+  }
+  function pdf(result){
+    var output=[]
+    output.push(result.d.col)
+    result.d.data.forEach(x=> {
+      let tmp=[]
+      result.d.col.forEach(y=> tmp.push(x[y]))
+      output.push(tmp)
+    })
+    download(output)
   }
 if data.notifyLink
   script.

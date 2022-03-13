@@ -1,75 +1,82 @@
 const mysql = require( 'mysql' );
 class Database {
     procedures={
-        index:{ sql: `SELECT SQL_CALC_FOUND_ROWS v.version_count,g.* FROM coda.Games as g left join (select COUNT(*) as version_count,gameId from coda.Versions where gameId is not null and deleted=0 group by gameId) as v on g.id=v.gameId  where ( v.version_count=1 or v.version_count is null ) and NOW()  > g.rdd and g.rdd > NOW()-INTERVAL 30 DAY and g.deleted=0 :srcTxt  order by :orderBy LIMIT :current,30; SELECT FOUND_ROWS() AS max;`
+        index:{ sql: `SELECT SQL_CALC_FOUND_ROWS v.version_count,g.* FROM coda.Games as g left join (select COUNT(*) as version_count,gameId from coda.Versions where gameId is not null and deleted=0 group by gameId) as v on g.id=v.gameId  where ( v.version_count=1 or v.version_count is null ) and NOW()  > g.rdd and g.rdd > NOW()-INTERVAL 30 DAY and g.deleted=0 :srcTxt   :orderBy LIMIT :current,30; SELECT FOUND_ROWS() AS max;`
                ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"rdd",t:"date"} ] 
                ,orderBy:["id","n","dn","rdd"] 
             },
-        game:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.id,g.n,g.dn,g.rdd,!isnull(n.id) as notify FROM coda.Games as g  LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=2 and g.deleted=0 and n.userId=:userId where  1=1 AND g.deleted=0 :srcTxt  GROUP BY g.id  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        game:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.id,g.n,g.dn,g.rdd,!isnull(n.id) as notify FROM coda.Games as g  LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=2 and g.deleted=0 and n.userId=:userId where  1=1 AND g.deleted=0 :srcTxt  GROUP BY g.id   :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
                ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"rdd",t:"date"} ] 
                ,orderBy:["id","n","dn","rdd","notify"] 
             },
-        company:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify FROM coda.Companys as g  LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=1 and n.userId=:userId  where 1=1 and g.hidden=0 :srcTxt   GROUP BY g.id  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        company:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify FROM coda.Companys as g  LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=1 and n.userId=:userId  where 1=1 and g.hidden=0 :srcTxt   GROUP BY g.id  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
             ,searchCol:[ {k:"id"},{k:"text"},{k:"checker",t:"equal"} ] 
             ,orderBy:["id","text","notify","checker"] 
         },    
-        notification_request:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.* FROM coda.Notifications as g WHERE g.deleted=0 and  g.userId=:userId :srcTxt ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        notification_request:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.* FROM coda.Notifications as g WHERE g.deleted=0 and  g.userId=:userId :srcTxt  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
             ,searchCol:[{k:"text"},{k:"date",t:"date"}] 
             ,orderBy:["date","text"] 
         }, 
-        notification_request_one:{ sql:`SELECT SQL_CALC_FOUND_ROWS '1' as notify,n.targetId as id,g.n,g.dn FROM coda.Notification_Request as n inner join coda.Games as g on g.id=n.targetId WHERE n.userId=:userId and n.typeId=2 :srcTxt group by n.targetId order BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        notification_request_one:{ sql:`SELECT SQL_CALC_FOUND_ROWS '1' as notify,n.targetId as id,g.n,g.dn FROM coda.Notification_Request as n inner join coda.Games as g on g.id=n.targetId WHERE n.userId=:userId and n.typeId=2 :srcTxt group by n.targetId  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
             ,searchCol:[  {k:"id"},{k:"n"},{k:"dn"} ] 
             ,orderBy:["id", "n","dn","notify"] 
+            ,pdf:`SELECT n.targetId as id,g.n as 'Oyun Adı',g.dn as 'Yayıncı Adı',SUBSTRING( g.rdd, 1 , 10)  as 'Çıkış Tarihi',MAX(v.version_date) as 'Son Revizyon Tarihi'
+            ,concat("{{",c.color_1,"}}",c.color_1) as 'Renk 1',concat("{{",c.color_2,"}}",c.color_2) as 'Renk 2',concat("{{",c.color_3,"}}",c.color_3) as 'Renk 3',concat("{{",c.color_4,"}}",c.color_4) as 'Renk 4',concat("{{",c.color_5,"}}",c.color_5) as 'Renk 5'
+            FROM coda.Notification_Request as n inner join coda.Games as g on g.id=n.targetId 
+            inner join coda.Versions as v on v.gameId=g.id 
+            left join coda.Game_Color as c on c.gameId=g.id 
+            WHERE n.userId=:userId and n.typeId=2  group by n.targetId order BY id;`
+            ,pdfcol:['id','Oyun Adı','Yayıncı Adı','Çıkış Tarihi','Son Revizyon Tarihi','Renk 1','Renk 2','Renk 3','Renk 4','Renk 5']
         },
-        notification_request_two:{ sql:`SELECT SQL_CALC_FOUND_ROWS '1' as notify,n.targetId as id,g.text FROM coda.Notification_Request as n inner join coda.Companys as g on g.id=n.targetId WHERE n.userId=:userId and n.typeId=1 :srcTxt group by n.targetId order BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        notification_request_two:{ sql:`SELECT SQL_CALC_FOUND_ROWS '1' as notify,n.targetId as id,g.text FROM coda.Notification_Request as n inner join coda.Companys as g on g.id=n.targetId WHERE n.userId=:userId and n.typeId=1 :srcTxt group by n.targetId  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
             ,searchCol:[ {k:"id"},{k:"text"} ] 
             ,orderBy:["id", "text","notify"] 
         },
-        system:{ sql:  `SELECT SQL_CALC_FOUND_ROWS v.version_date_max,v.version_date_min,g.*,!isnull(n.id) as notify FROM coda.Games as g inner join coda.Companys as c on c.id=g.companyId and c.hidden=0  inner join (SELECT count(*) as version_count,MAX(version_date) as version_date_max,MIN(version_date) as version_date_min,gameId FROM coda.Versions where deleted=0 group by gameId) as v on v.version_count>1 and v.version_date_max > NOW()-INTERVAL 90 DAY and g.skip=0  and v.gameId = g.id  LEFT join coda.Notification_Request as n on n.targetId=g.id and n.typeId=2 and n.deleted=0 and n.userId=:userId where g.deleted=0 :srcTxt ORDER BY :orderBy LIMIT :current,16;SELECT FOUND_ROWS() AS max;` //`SELECT SQL_CALC_FOUND_ROWS v.version_date_max,v.version_date_min,g.*,!isnull(n.id) as notify FROM coda.Games as g inner join (SELECT count(*) as version_count,MAX(version_date) as version_date_max,MIN(version_date) as version_date_min,gameId FROM coda.Versions where deleted=0 group by gameId) as v on v.version_count>1 and v.version_date_max > NOW()-INTERVAL 90 DAY and g.skip=0  and v.gameId = g.id  LEFT join coda.Notification_Request as n on n.targetId=g.id and n.typeId=2 and n.deleted=0 and n.userId=:userId where g.deleted=0 :srcTxt ORDER BY :orderBy LIMIT :current,16;SELECT FOUND_ROWS() AS max;`
+        system:{ sql:  `SELECT SQL_CALC_FOUND_ROWS v.version_date_max,v.version_date_min,g.*,!isnull(n.id) as notify FROM coda.Games as g inner join coda.Companys as c on c.id=g.companyId and c.hidden=0  inner join (SELECT count(*) as version_count,MAX(version_date) as version_date_max,MIN(version_date) as version_date_min,gameId FROM coda.Versions where deleted=0 group by gameId) as v on v.version_count>1 and v.version_date_max > NOW()-INTERVAL 90 DAY and g.skip=0  and v.gameId = g.id  LEFT join coda.Notification_Request as n on n.targetId=g.id and n.typeId=2 and n.deleted=0 and n.userId=:userId where g.deleted=0 :srcTxt  :orderBy LIMIT :current,16;SELECT FOUND_ROWS() AS max;`
             ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"version_date_max",t:"date",q:"v"},{k:"version_date_min",t:"date",q:"v"} ] 
             ,orderBy:["id", "n", "dn", "version_date_max","version_date_min","notify"] 
         },
-        user_categorys :{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify FROM coda.Games as g inner join coda.User_Category_Games as c on c.gameId=g.id and c.userCategoryId=:id LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=2 where  c.deleted=0 AND g.deleted=0 :srcTxt  GROUP BY g.id  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        user_categorys :{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify FROM coda.Games as g inner join coda.User_Category_Games as c on c.gameId=g.id and c.userCategoryId=:id LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=2 where  c.deleted=0 AND g.deleted=0 :srcTxt  GROUP BY g.id  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
         ,searchCol:[  {k:"id"},{k:"n"},{k:"dn"},{k:"rdd",t:"date"} ] 
         ,orderBy:["id", "n", "dn", "rdd","notify"] 
         },
-        user :{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,g.approved as notify FROM coda.Users as g where 1=1 :srcTxt and g.deleted=0  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        user :{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,g.approved as notify FROM coda.Users as g where 1=1 :srcTxt and g.deleted=0  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
         ,searchCol:[ {k:"id"},{k:"username"} ] 
         ,orderBy:["id","username","notify"] 
         },
-        user_grup:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify  FROM coda.Groups as g LEFT JOIN coda.User_Grup as n on n.groupId=g.id  and n.deleted=0 and n.userId=:id  where g.deleted=0 :srcTxt GROUP BY g.id  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max`
+        user_grup:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify  FROM coda.Groups as g LEFT JOIN coda.User_Grup as n on n.groupId=g.id  and n.deleted=0 and n.userId=:id  where g.deleted=0 :srcTxt GROUP BY g.id   :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max`
         ,searchCol:[  {k:"id"},{k:"text"} ] 
         ,orderBy:["id","text","notify"] 
         },
-        authority_group:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify  FROM coda.Authorization_List as g LEFT JOIN coda.Authority_Group as n on n.authId=g.id  and n.groupId=:id and n.deleted=0 where g.deleted=0 :srcTxt   GROUP BY g.id  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        authority_group:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify  FROM coda.Authorization_List as g LEFT JOIN coda.Authority_Group as n on n.authId=g.id  and n.groupId=:id and n.deleted=0 where g.deleted=0 :srcTxt   GROUP BY g.id   :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
         ,searchCol:[  {k:"id"},{k:"text"} ] 
         ,orderBy:["id","text","notify"] 
         },
-        manual:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify FROM coda.Games as g  inner join coda.Game_Manual as m on g.id=m.gameId  LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=2 where  m.deleted=0 AND g.deleted=0 :srcTxt  GROUP BY g.id  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        manual:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify FROM coda.Games as g  inner join coda.Game_Manual as m on g.id=m.gameId  LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=2 where  m.deleted=0 AND g.deleted=0 :srcTxt  GROUP BY g.id   :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
         ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"rdd",t:"date"} ] 
         ,orderBy:["id", "n", "dn", "rdd","notify"] 
         },
-        prototype:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.id,g.name,u.username FROM coda.Prototypes as g inner join coda.Users as u on g.ownerId=u.id  where 1=1 :srcTxt  GROUP BY g.id  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        prototype:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.id,g.name,u.username FROM coda.Prototypes as g inner join coda.Users as u on g.ownerId=u.id  where 1=1 :srcTxt  GROUP BY g.id   :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
         ,searchCol:[ {k:"name"},{k:"username"} ] 
         ,orderBy:["name", "username"] 
         },
-        myfollow:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(nn.id) as notify FROM coda.Companys as c  inner JOIN coda.Notification_Request as n on n.targetId=c.id and n.typeId=1 and n.userId=:userId and c.hidden=0 and c.deleted=0 and n.deleted=0 inner join coda.Games as g on g.companyId=c.id and g.deleted=0 left join coda.Notification_Request as nn on nn.targetId=g.id and nn.typeId=2 and nn.userId=:userId and nn.deleted=0 where  1=1  :srcTxt  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        myfollow:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(nn.id) as notify FROM coda.Companys as c  inner JOIN coda.Notification_Request as n on n.targetId=c.id and n.typeId=1 and n.userId=:userId and c.hidden=0 and c.deleted=0 and n.deleted=0 inner join coda.Games as g on g.companyId=c.id and g.deleted=0 left join coda.Notification_Request as nn on nn.targetId=g.id and nn.typeId=2 and nn.userId=:userId and nn.deleted=0 where  1=1  :srcTxt  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
         ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"rdd",t:"date"} ] 
         ,orderBy:["id","n","dn","rdd","notify"] 
         },
-        top:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.id,g.n,d.device_text,c.countrie_text,t.rank,t.date FROM coda.Top_List as t  
+        top:{ sql:`SELECT  g.id,g.n,g.dn,d.device_text,c.countrie_text,t.rank,t.date FROM coda.Top_List as t  
         inner JOIN coda.Games as g on t.gameId=g.id 
-        inner JOIN coda.Devices as d on t.deviceId=d.id
         inner JOIN coda.Countries as c on t.countrieId=c.id 
-        where  1=1  :srcTxt  ORDER BY :orderBy ,rank  LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
-        ,searchCol:[ {k:"id"},{k:"n"},{k:"id",q:"d",t:"equal"},{k:"id",q:"c",t:"equal"},{k:"date",t:"equal",q:"t"},{k:"rank",t:"equal",q:"t"} ] 
+        inner JOIN coda.Devices as d on t.deviceId=d.id
+        where  1=1  :srcTxt   :orderBy  LIMIT :current,16;SELECT count(*) AS max from coda.Top_List;`// SQL_CALC_FOUND_ROWS SELECT FOUND_ROWS() AS max;
+        ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"id",q:"d",t:"equal"},{k:"id",q:"c",t:"equal"},{k:"date",t:"equal",q:"t"},{k:"rank",t:"equal",q:"t"} ] 
         ,orderBy:["id","n","device_text","countrie_text","rank","date"] 
         },
-        linkedin_company:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify FROM coda.Linkedin_Company as g  LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=4 and n.userId=:userId  where 1=1 and g.deleted=0 :srcTxt   GROUP BY g.id  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        linkedin_company:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify FROM coda.Linkedin_Company as g  LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=4 and n.userId=:userId  where 1=1 and g.deleted=0 :srcTxt   GROUP BY g.id  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
             ,searchCol:[ {k:"id"},{k:"name"} ] 
             ,orderBy:["id","name","notify"] 
         }, 
-        linkedin_user:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.* FROM coda.Linkedin_User as g  where 1=1 and g.deleted=0 and companyId=:id :srcTxt   GROUP BY g.id  ORDER BY :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+        linkedin_user:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.* FROM coda.Linkedin_User as g  where 1=1 and g.deleted=0 and companyId=:id :srcTxt   GROUP BY g.id  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
             ,searchCol:[ {k:"id"},{k:"username"} ] 
             ,orderBy:["id","username"] 
         },   
@@ -86,6 +93,18 @@ class Database {
             charset : 'utf8mb4'
           } );
         
+    }
+    async storedProcedurePdf(procedure,values){
+        try {
+            var selectedProcedure=JSON.parse(JSON.stringify(this.procedures[procedure]))
+         } catch (error) {
+            console.log(error)   
+            throw "Procedure not converted!"
+         }
+         var tmp={}
+         tmp.data=await this.queryObject(selectedProcedure.pdf,values)
+         tmp.col=selectedProcedure.pdfcol
+         return tmp;
     }
     async storedProcedure(procedure,values){
         try {
@@ -158,9 +177,9 @@ class Database {
         }
         //orderby
         if(values.orderBy &&  Array.isArray(selectedProcedure.orderBy) && selectedProcedure.orderBy.includes(values.orderBy) ){
-            selectedProcedure.sql=selectedProcedure.sql.replace(":orderBy",values.orderBy + (values.orderType=="A" ? " ASC" : " DESC") )
+            selectedProcedure.sql=selectedProcedure.sql.replace(":orderBy",  "ORDER BY "+ values.orderBy + (values.orderType=="A" ? " ASC" : " DESC") )
         }else{
-            selectedProcedure.sql=selectedProcedure.sql.replace(":orderBy","id DESC")
+            selectedProcedure.sql=selectedProcedure.sql.replace(":orderBy","")
         }
         if(! values.current) selectedProcedure.sql=selectedProcedure.sql.replace(":current","0")
         return await this.queryObject(selectedProcedure.sql,values)

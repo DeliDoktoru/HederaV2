@@ -115,7 +115,7 @@ function showNotification(from, align,renk,text){
         location.reload();
 
     }
-    function Dynajax(link,key="",callback,This=null,checkControls=true,data,ask=false,async=true){
+    function Dynajax(link,key="",callback,This=null,checkControls=true,data,ask=false,async=true,clear=true){
         if(checkControls){
             if(controls()) {
                 maskClose();    
@@ -180,7 +180,7 @@ function showNotification(from, align,renk,text){
                 }
                 if (result.status){
                     if(callback && typeof(callback)=="function") {
-                        $(`[ajax-key=${key}]:visible`).val("");
+                        if(clear) $(`[ajax-key=${key}]:visible`).val("");
                         callback(result,This);
                     }
                 } 

@@ -404,7 +404,7 @@ async function paramC(day){
     var Devices=await db.selectAll("Devices")
     var Countries=await db.selectAll("Countries")
     for(i=day;i<=day;i++){
-        var date=convertTime(i+"/02/2022")
+        var date=convertTime(i+"/03/2022")
         for(c of Countries){
             //console.log(c.countrie_text)
             for(d of Devices){

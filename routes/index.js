@@ -63,16 +63,16 @@ async function dashboard(req,res){
   await tableGenerator({
     procedure:"top",
     pp:true,
-    tableHead:["id","rank","n","id","id","date"],
-    turkce:["Id","Sıralama","Oyun adı","Cihaz","Ülke","Tarih"],
-    dateIndex:[6],
-    soloDateIndex:[6],
+    tableHead:["id","rank","n","dn","id","id","date"],
+    turkce:["Id","Sıralama","Oyun adı","Yayıncı","Cihaz","Ülke","Tarih"],
+    dateIndex:[7],
+    soloDateIndex:[7],
     table:"/",
-    special:[{k:"Devices",i:"4",c:"device_text",q:"d",t:"select"},{k:"Countries",i:"5",q:"c",c:"countrie_text",t:"select"}],
+    special:[{k:"Devices",i:"5",c:"device_text",q:"d",t:"select"},{k:"Countries",i:"6",q:"c",c:"countrie_text",t:"select"}],
     pageLink:"/dashboard/",
     link:"/game/",
     title:"Ana Sayfa",
-    orderBy:"date",
+    //orderBy:"date",
     customTable:"dashboard",
     customCheckbox:"Grafik",
     static:{Devices:  await db.selectAll("Devices"),Countries:  await db.selectAll("Countries") }
@@ -315,6 +315,9 @@ router.get('/game/:id/:page?', async function (req, res, next) {
     var images = await  db.selectQuery({
       gameId: id
     }, "Game_Images")
+    var color = await  db.selectQuery({
+      gameId: id
+    }, "Game_Color")
     var usercategorys = await  db.selectQuery({
       userId: userId
     }, "User_Categorys")
@@ -354,6 +357,7 @@ router.get('/game/:id/:page?', async function (req, res, next) {
       data: data[0],
       images: images,
       versions: versions,
+      color:color && color[0],
       categorys: tmp,
       usercategorys: usercategorys,
       userselectedcategorys: userselectedcategorys,
@@ -433,6 +437,7 @@ router.get('/notification_request/:id/:page?', async function (req, res, next) {
   let id = req.params.id
   if (id == "1") {
     await tableGenerator({
+      pdf:true,
       procedure:"notification_request_one",
       searchCol:"n",
       search:true,

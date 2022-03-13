@@ -71,6 +71,23 @@ router.post('/table/:id',async function(req, res, next) {
 
 });
 
+router.post('/pdf/:id',async function(req, res, next) {
+  try {
+    var data={}
+    let id = req.params.id;
+    data.userId=req.session.user.id;
+    res.send({d:await db.storedProcedurePdf(id,data),status:1});
+  } catch (error) {
+    console.log(error)
+    res.send({
+      message: "Hata oluştu!",
+      status: 0,
+      color: "danger"
+    });
+  }
+
+});
+
 /* #region  login */
 router.post('/login',async function(req, res, next) {
   var data=req.body.kdata;
@@ -447,7 +464,48 @@ router.post('/manual',async function(req, res, next) {
   });
 
 });
+router.post('/color/:id',async function(req, res, next) {
+  var data=req.body.kdata;
+  var text, status=0 ;
+  var userId=req.session.user.id;
+  let id = req.params.id;
+  try {
+    if(!id) throw "ID bulunamadı!";
+    var checkColor=(await db.selectQuery({  gameId :  id },"Game_Color") )
+    if ( checkColor && checkColor.length>0  ){
+      await db.update({
+        color_1:data.color_1,
+        color_2:data.color_2,
+        color_3:data.color_3,
+        color_4:data.color_4,
+        color_5:data.color_5,
+        userId:userId,
+      },{id:checkColor[0].id},"Game_Color");
+      text = "Güncellendi!";
+    }else{
+      await db.insert({
+        color_1:data.color_1,
+        color_2:data.color_2,
+        color_3:data.color_3,
+        color_4:data.color_4,
+        color_5:data.color_5,
+        gameId:id,
+        userId:userId,
+      },"Game_Color");
+      text = "Eklendi!";
+    }
+    status = 1;
+  } catch (error) {
+    console.log(error)
+    text=error
+  }
+  
+  res.send({
+    message: text,
+    status: status,
+  });
 
+});
 router.post('/note',async function(req, res, next) {
   var data=req.body.ndata;
   var text, status=0 ;
