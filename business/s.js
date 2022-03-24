@@ -430,7 +430,7 @@ async function appStoreTopList(c,d,date){
             //free game
             let f=item[0]
             let gameId=await insertGameByUrlv3("https://apps.apple.com/app/id"+f.app_id,null,f.url)
-            var obj={  countrieId:c.id,deviceId:d.id,tier:f.tier,date:date }
+            var obj={  countrieId:c.id,deviceId:d.id,tier:f.rank,date:date }
             let checkGame=(await db.selectQuery(obj,"Top_List") )
             obj.gameId=gameId;//sorgudan sonra gameId ekledim
             if ( checkGame && checkGame.length>0  ){
