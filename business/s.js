@@ -430,20 +430,20 @@ async function appStoreTopList(c,d,date){
             //free game
             let f=item[0]
             let gameId=await insertGameByUrlv3("https://apps.apple.com/app/id"+f.app_id,null,f.url)
-            var obj={  countrieId:c.id,deviceId:d.id,rank:f.rank,date:date }
+            var obj={  countrieId:c.id,deviceId:d.id,tier:f.tier,date:date }
             let checkGame=(await db.selectQuery(obj,"Top_List") )
             obj.gameId=gameId;//sorgudan sonra gameId ekledim
             if ( checkGame && checkGame.length>0  ){
                 if(checkGame[0].gameId!=gameId){
                     console.log(checkGame[0].gameId +" != "+gameId)
                     await db.update(obj,{id:checkGame[0].id},"Top_List");  
-                    console.log("updated date:"+obj.date +" rank:" +obj.rank) 
+                    console.log("updated date:"+obj.date +" tier:" +obj.tier) 
                 }else console.log("duplicate")
                 continue
             }
             obj.gameId=gameId;
             await db.insert(obj,"Top_List")
-            console.log("inserted date:"+obj.date +" rank:" +obj.rank)
+            console.log("inserted date:"+obj.date +" tier:" +obj.tier)
         }
     } catch (error) {
         console.log(error)

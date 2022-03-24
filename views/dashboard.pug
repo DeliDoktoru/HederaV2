@@ -90,7 +90,7 @@ block content
           for(item of data.chart[x].data){
             let date=new Date(item.date)
             if(date.getFullYear()==y && date.getMonth()==m && item.countrieId==$("#countrie").val() && item.deviceId==$("#countrie").val()){
-              tmp[date.getDate()-1]=item.rank
+              tmp[date.getDate()-1]=item.tier
             }
           }
           chart.data.datasets.push( { label:data.chart[x].name,data: tmp,borderColor:Colors2[i],backgroundColor: Colors2[i] , id:x})

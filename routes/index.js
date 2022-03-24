@@ -63,7 +63,7 @@ async function dashboard(req,res){
   await tableGenerator({
     procedure:"top",
     pp:true,
-    tableHead:["id","rank","n","dn","id","id","date"],
+    tableHead:["id","tier","n","dn","id","id","date"],
     turkce:["Id","Sıralama","Oyun adı","Yayıncı","Cihaz","Ülke","Tarih"],
     dateIndex:[7],
     soloDateIndex:[7],

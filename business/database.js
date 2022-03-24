@@ -64,13 +64,13 @@ class Database {
         ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"rdd",t:"date"} ] 
         ,orderBy:["id","n","dn","rdd","notify"] 
         },
-        top:{ sql:`SELECT  g.id,g.n,g.dn,d.device_text,c.countrie_text,t.rank,t.date FROM coda.Top_List as t  
+        top:{ sql:`SELECT  g.id,g.n,g.dn,d.device_text,c.countrie_text,t.tier,t.date FROM coda.Top_List as t  
         inner JOIN coda.Games as g on t.gameId=g.id 
         inner JOIN coda.Countries as c on t.countrieId=c.id 
         inner JOIN coda.Devices as d on t.deviceId=d.id
         where  1=1  :srcTxt   :orderBy  LIMIT :current,16;SELECT count(*) AS max from coda.Top_List;`// SQL_CALC_FOUND_ROWS SELECT FOUND_ROWS() AS max;
-        ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"id",q:"d",t:"equal"},{k:"id",q:"c",t:"equal"},{k:"date",t:"equal",q:"t"},{k:"rank",t:"equal",q:"t"} ] 
-        ,orderBy:["id","n","device_text","countrie_text","rank","date"] 
+        ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"id",q:"d",t:"equal"},{k:"id",q:"c",t:"equal"},{k:"date",t:"equal",q:"t"},{k:"tier",t:"equal",q:"t"} ] 
+        ,orderBy:["id","n","device_text","countrie_text","tier","date"] 
         },
         linkedin_company:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify FROM coda.Linkedin_Company as g  LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=4 and n.userId=:userId  where 1=1 and g.deleted=0 :srcTxt   GROUP BY g.id  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
             ,searchCol:[ {k:"id"},{k:"name"} ] 
