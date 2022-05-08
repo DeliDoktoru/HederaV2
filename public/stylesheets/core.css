@@ -183,10 +183,10 @@ thead>tr:nth-child(1)>th{
 .box{
   overflow-x: auto;
   display: flex;
-justify-content: center;
-align-items: center;
-width: 100%;
-height: 250px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 250px;
 }
 #loader {
   border: 16px solid #f3f3f3;
@@ -247,7 +247,13 @@ height: 250px;
   color:red !important;
   cursor: pointer;
 }
-
+.note .green{
+  color:#4CAF50 !important;
+  cursor: pointer;
+}
+.note .blue{
+  color:#8feeff !important;
+}
 iframe{
   width: 49.7%;
   display: block;       /* iframes are inline by default */

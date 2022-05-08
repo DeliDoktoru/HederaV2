@@ -399,6 +399,13 @@ router.get('/company/:id/:page?', async function (req, res, next) {
     var data = await db.selectQuery({
       id: id
     }, "Companys");
+    var linkedin;
+    var tmplinkedin = await db.selectQuery({
+      companyId: id
+    }, "Linkedin_Company");
+    if (tmplinkedin && tmplinkedin.length > 0) {
+      linkedin = tmplinkedin[0]
+    }
     var note;
     var tmpNote = await db.selectQuery({
       targetId: id,
@@ -414,7 +421,8 @@ router.get('/company/:id/:page?', async function (req, res, next) {
       data: data[0],
       games: games,
       notify: notify,
-      note: note
+      note: note,
+      linkedin:linkedin
     });
   }
 
