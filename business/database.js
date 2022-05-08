@@ -72,9 +72,9 @@ class Database {
         ,searchCol:[ {k:"id"},{k:"n"},{k:"dn"},{k:"id",q:"d",t:"equal"},{k:"id",q:"c",t:"equal"},{k:"date",t:"equal",q:"t"},{k:"tier",t:"equal",q:"t"} ] 
         ,orderBy:["id","n","device_text","countrie_text","tier","date"] 
         },
-        linkedin_company:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,!isnull(n.id) as notify FROM coda.Linkedin_Company as g  LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=4 and n.userId=:userId  where 1=1 and g.deleted=0 :srcTxt   GROUP BY g.id  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
-            ,searchCol:[ {k:"id"},{k:"name"} ] 
-            ,orderBy:["id","name","notify"] 
+        linkedin_company:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.*,c.text,!isnull(n.id) as notify FROM coda.Linkedin_Company as g  LEFT JOIN coda.Notification_Request as n on n.targetId=g.id and n.typeId=4 and n.userId=:userId inner join coda.Companys as c on c.id=g.companyId  where 1=1 and g.deleted=0 :srcTxt   GROUP BY g.id  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
+            ,searchCol:[ {k:"id"},{k:"text",q:"c"} ] 
+            ,orderBy:["id","text","notify"] 
         }, 
         linkedin_user:{ sql:`SELECT SQL_CALC_FOUND_ROWS g.* FROM coda.Linkedin_User as g  where 1=1 and g.deleted=0 and companyId=:id :srcTxt   GROUP BY g.id  :orderBy LIMIT :current,16; SELECT FOUND_ROWS() AS max;`
             ,searchCol:[ {k:"id"},{k:"username"} ] 

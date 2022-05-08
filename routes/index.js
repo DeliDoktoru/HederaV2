@@ -122,7 +122,7 @@ router.get('/linkedin/:id/:page?', async function (req, res, next) {
     await tableGenerator({
       procedure:"linkedin_company",
       checkbox:true,
-      tableHead:["id","name"],
+      tableHead:["id","text"],
       turkce:["Id","Şirket adı"],
       typeId:[4],
       table:"/",
@@ -130,16 +130,17 @@ router.get('/linkedin/:id/:page?', async function (req, res, next) {
       title:"Linkedin Şirket Takibi"
     },req,res)
   }else{
-    var company = await db.selectQuery({
+    var linkedinCompany = await db.selectQuery({
       id: id
     }, "Linkedin_Company")
+    var company=await db.selectQuery({  id :  linkedinCompany[0]?.companyId},"Companys") 
     await tableGenerator({
       procedure:"linkedin_user",
       tableHead:["id","username"],
       turkce:["Id","İsim-Soyisim"],
       pageLink:"/linkedin/",
-      title:"Şirket Çalışanları ( "+company[0]?.name +" )",
-      sqlData:{ id:id},
+      title:"Şirket Çalışanları ( "+company[0]?.text +" )",
+      sqlData:{ id:linkedinCompany[0]?.companyId},
     },req,res)
   }
   
