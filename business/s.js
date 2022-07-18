@@ -341,13 +341,16 @@ async function getAppStoreGameByLink(link){
         var a=JSON.parse(b);
         var l=Object.keys(a)[0]
         a=JSON.parse(a[l])
-        a.avatar=$(".we-artwork__source").eq(0).attr("srcset").split(" ")[0];
+        a.avatar=$(".we-artwork>source").attr("srcset").split(".webp")[0]+".webp"
+        //a.avatar=$(".we-artwork__source").eq(0).attr("srcset").split(" ")[0];
       } catch (error) {
+        console.log(error)
         console.log("wrong app store game link:"+link);
         return false
       }
       return a;
 }
+
 async function getAppStoreCompanyGames(companyId){
     //appstore
     try {
