@@ -2,6 +2,23 @@ extends layout
 
 block content
   .row
+    .col-md-4 
+        .card.card-stats.note
+          .card-header
+            p="Linkedin şirket linki.."
+          .card-body
+            .row
+              .col-12
+                #note(data-id=data && data.id )
+                  a(href=linkedin && linkedin.link target="_blank")=linkedin && linkedin.link
+          .card-footer
+            hr
+            .stats
+              i.fas.fa-edit
+              i.fas.fa-paper-plane
+              i.fas.fa-trash-alt
+              i.fas.fa-ban
+              i(class=`fa-rotate fas ${linkedin && linkedin.checker==1 ? "blue" : ( linkedin && linkedin.checker==0 ? "green" :"" )   }`) 
     .col-md-12
       .card
         .card-header
@@ -120,7 +137,7 @@ block content
               position: 'bottom',
               onClick:function(a,e){
                   window.open("/game/"+GAMES[e.datasetIndex].id,"_blank")
-                  console.log(e.datasetIndex)
+                  //console.log(e.datasetIndex)
                 },
             },
             title: {
@@ -133,6 +150,7 @@ block content
   script.
     
     $(function() {
+      note="",noteHtml=""
       $( "input[type='checkbox']" ).click(function() {
           event.stopPropagation();
       });
@@ -150,22 +168,52 @@ block content
       $(".note .fa-ban").toggle()
       $(".note .fa-edit").click(function(){
         note=$("#note").text()
-        $("#note").html('<div class="form-group"> <input value="'+note+'" type="text" class="form-control" placeholder="Notunuz.."> </div>  ')
+        noteHtml=$("#note").html()
+        $("#note").html('<div class="form-group"> <input value="'+note+'" type="text" class="form-control" placeholder="Link.."> </div>  ')
         $(".note .fa-edit,.fa-trash-alt").hide()
         $(".note .fa-paper-plane,.fa-ban").show()
       })
       $(".note .fa-trash-alt").click(function(){
-          Dynajax('note','n',basariliReload,null,false,{ status:0,targetType:2,targetId:parseInt($("#note").attr("data-id"))});
+          Dynajax('company_url','n',function(){
+            $("#note").html(noteHtml)
+            $("#note a").text("")
+            $("#note a").attr("href","")
+            $(".note .fa-edit,.fa-trash-alt").show()
+            $(".note .fa-paper-plane,.fa-ban").hide()
+            if ($("#note").text() =="" )
+              $(".note .fa-trash-alt").toggle()
+          },null,false,{ status:0,targetId:parseInt($("#note").attr("data-id"))});
         })
        $(".note .fa-ban").click(function(){
-          $("#note").html(note)
-           $(".note .fa-edit,.fa-trash-alt").show()
-        $(".note .fa-paper-plane,.fa-ban").hide()
-        if ($("#note").text() =="" ){
-        $(".note .fa-trash-alt").toggle()
-      }
-        }) 
-         $(".note .fa-paper-plane").click(function(){
-           Dynajax('note','n',basariliReload,null,true,{ text:$("#note input").val(),status:1,targetType:2,targetId:parseInt($("#note").attr("data-id"))});
+          $("#note").html(noteHtml)
+          $(".note .fa-edit,.fa-trash-alt").show()
+          $(".note .fa-paper-plane,.fa-ban").hide()
+          if ($("#note").text() =="" ){
+            $(".note .fa-trash-alt").toggle()
+          }
+      }) 
+      $(".note .fa-rotate").click(function(){
+        if( $(this).hasClass("green") ){
+          Dynajax('company_check','s',function(obj,callbackData){
+          if(obj.status){
+              showNotification('top','right',"success",obj.message);
+              $(callbackData).removeClass("green")
+              $(callbackData).addClass("blue")
+          }
+          },this,false,{ targetId:parseInt($("#note").attr("data-id")) });
+        }
+        
+      })
+        $(".note .fa-paper-plane").click(function(){
+          Dynajax('company_url','n',function(){
+            let val=$("#note input").val()
+            $("#note").html(noteHtml)
+            $("#note a").text(val)
+            $("#note a").attr("href",val)
+            $(".note .fa-edit,.fa-trash-alt").show()
+            $(".note .fa-paper-plane,.fa-ban").hide()
+            if ($("#note").text() =="" )
+              $(".note .fa-trash-alt").toggle()
+          },null,true,{ text:$("#note input").val(),status:1,targetId:parseInt($("#note").attr("data-id"))});
         })
     });
